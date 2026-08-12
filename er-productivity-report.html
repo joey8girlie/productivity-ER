@@ -64,12 +64,18 @@ main{padding:16px 16px 24px;}
   display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--accent-light);padding-bottom:8px;}
 .card h2 .em{font-size:18px;}
 label.field-label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
-.row{display:flex;gap:12px;}
-.row > *{flex:1; min-width:0; /* Fix overlap issue */} 
+
+/* Responsive Row Fix for Mobile */
+.row{display:flex;gap:10px;align-items:flex-start;}
+.row-responsive{display:flex;gap:10px;flex-wrap:wrap;}
+.row-responsive > *{flex:1 1 130px;min-width:0;}
+
 select,input[type=date],input[type=text],textarea{
-  width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;
-  font-size:15px;font-family:'Sarabun',sans-serif;background:#fff;color:var(--ink);transition:all .2s;}
-textarea{resize:vertical;min-height:64px;}
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+  border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;
+  font-size:15px;font-family:'Sarabun',sans-serif;background:#fff;color:var(--ink);transition:all .2s;
+  -webkit-appearance:none;-moz-appearance:none;appearance:none;height:44px;}
+textarea{resize:vertical;min-height:64px;height:auto;}
 select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(92,156,230,.15);}
 
 /* direct input rows */
@@ -80,8 +86,8 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);
 
 /* Number Input Box */
 .num-input{
-  width:95px;text-align:center;font-size:17px;font-weight:700;
-  border:1.5px solid var(--line);border-radius:10px;padding:8px 6px;
+  width:95px;height:42px;text-align:center;font-size:17px;font-weight:700;
+  border:1.5px solid var(--line);border-radius:10px;padding:6px;
   background:#fff;color:var(--accent-dark);box-shadow:inset 0 1px 3px rgba(0,0,0,.02);
 }
 .num-input:focus{outline:none;border-color:var(--accent);background:var(--accent-light);}
@@ -196,7 +202,9 @@ section.view.active{display:block;}
     <section class="view active" id="view-entry">
       <div class="card">
         <h2><span class="em">🗓️</span> ข้อมูลเวรและบุคลากร</h2>
-        <div class="row" style="margin-bottom:12px;">
+        
+        <!-- Fix mobile row overlap with row-responsive -->
+        <div class="row row-responsive" style="margin-bottom:12px;">
           <div>
             <label class="field-label">วันที่</label>
             <input type="date" id="f-date">
@@ -211,7 +219,7 @@ section.view.active{display:block;}
           </div>
         </div>
 
-        <div class="row">
+        <div class="row row-responsive">
           <div>
             <label class="field-label">👩‍⚕️ พยาบาลเวร (คน)</label>
             <input type="number" id="f-nurseCount" class="num-input mono" style="width:100%;" min="1" value="7" inputmode="numeric">
@@ -401,12 +409,16 @@ function computeScores(c, cfg){
   const rw = cfg.referWeights;
   const cap = cfg.capacity;
 
-  const nurseTriage = (c.resus*nw.resus) + (c.emergency*nw.emergency) + (c.urgent*nw.urgent) + (c.semi*nw.semi) + (c.non*nw.non);
-  const doctorTriage = (c.resus*dw.resus) + (c.emergency*dw.emergency) + (c.urgent*dw.urgent) + (c.semi*dw.semi) + (c.non*dw.non);
-  const referScore = (c.referIn*rw.referIn) + (c.referOut*rw.referOut) + (c.ems*rw.ems);
+  const nurseTriageScore = (c.resus*nw.resus) + (c.emergency*nw.emergency) + (c.urgent*nw.urgent) + (c.semi*nw.semi) + (c.non*nw.non);
+  const doctorTriageScore = (c.resus*dw.resus) + (c.emergency*dw.emergency) + (c.urgent*dw.urgent) + (c.semi*dw.semi) + (c.non*dw.non);
   
-  const nurseTotal = nurseTriage + referScore; 
-  const doctorTotal = doctorTriage;
+  const referInScore = c.referIn * rw.referIn;
+  const referOutScore = c.referOut * rw.referOut;
+  const emsScore = c.ems * rw.ems;
+  const referTotalScore = referInScore + referOutScore + emsScore;
+  
+  const nurseTotal = nurseTriageScore + referTotalScore; 
+  const doctorTotal = doctorTriageScore;
 
   const nurseDivisor = Math.max(1, c.nurseCount);
   const doctorDivisor = Math.max(1, c.doctorCount);
@@ -418,7 +430,20 @@ function computeScores(c, cfg){
   const doctorProdPct = Math.round((doctorTotal / doctorCapacityTotal) * 100);
 
   const overload = nurseProdPct > 100 || doctorProdPct > 100;
-  return {nurseScore: nurseTotal, doctorScore: doctorTotal, nurseProdPct, doctorProdPct, referScore, overload};
+
+  return {
+    nurseScore: nurseTotal,
+    doctorScore: doctorTotal,
+    nurseTriageScore,
+    doctorTriageScore,
+    referInScore,
+    referOutScore,
+    emsScore,
+    referTotalScore,
+    nurseProdPct,
+    doctorProdPct,
+    overload
+  };
 }
 
 /* ================= HELPER DEREF INPUTS ================= */
@@ -534,6 +559,8 @@ function buildReportHtml(rec){
     <div class="score-list" style="margin-top:20px;">
       <div class="score-row"><span class="sl">Nurse Total Score</span><span class="sv">${s.nurseScore}</span></div>
       <div class="score-row"><span class="sl">Doctor Total Score</span><span class="sv">${s.doctorScore}</span></div>
+      <div class="score-row"><span class="sl">EMS Score</span><span class="sv" style="color:var(--accent-dark);">${s.emsScore}</span></div>
+      <div class="score-row"><span class="sl">Refer Total Score</span><span class="sv">${s.referTotalScore}</span></div>
     </div>
 
     ${rec.note ? `<div class="rep-divider"></div><div class="rep-sub">📝 หมายเหตุ</div><div class="refer-line">${escapeHtml(rec.note)}</div>` : ''}
@@ -566,7 +593,7 @@ function renderHistory(){
     return `<div class="hist-item" onclick="openReport(RECORDS.find(x=>x.id==='${r.id}'))">
       <div class="hd">
         <div class="d1">${dateFmt} · เวร${r.shift}</div>
-        <div class="d2">Prod: พยาบาล ${r.scores.nurseProdPct}% · แพทย์ ${r.scores.doctorProdPct}%</div>
+        <div class="d2">Prod: พยาบาล ${r.scores.nurseProdPct}% · แพทย์ ${r.scores.doctorProdPct}% (EMS: ${r.scores.emsScore||0} pt)</div>
       </div>
       <span class="sync-ic">${r.synced?'☁️':'📴'}</span>
       <span class="hist-flag ${r.scores.overload?'over':'ok'}">${r.scores.overload?'OVERLOAD':'ปกติ'}</span>
@@ -687,15 +714,36 @@ async function testConnection(){
   }
 }
 
+/* FULL FLATTEN DATA SENT TO GOOGLE SHEET */
 function flattenRecord(r){
   return {
-    id:r.id, createdAt:r.createdAt, date:r.date, shift:r.shift,
-    nurseCount:r.nurseCount, doctorCount:r.doctorCount||1,
-    resuscitation:r.counts.resus, emergency:r.counts.emergency, urgent:r.counts.urgent,
-    semiUrgent:r.counts.semi, nonUrgent:r.counts.non,
-    referIn:r.refer.referIn, referOut:r.refer.referOut, ems:r.refer.ems,
-    nurseProdPct:r.scores.nurseProdPct, doctorProdPct:r.scores.doctorProdPct,
-    overload: r.scores.overload ? 'YES' : 'NO', note:r.note||''
+    id: r.id,
+    createdAt: r.createdAt,
+    date: r.date,
+    shift: r.shift,
+    nurseCount: r.nurseCount,
+    doctorCount: r.doctorCount || 1,
+    resuscitation: r.counts.resus,
+    emergency: r.counts.emergency,
+    urgent: r.counts.urgent,
+    semiUrgent: r.counts.semi,
+    nonUrgent: r.counts.non,
+    referIn: r.refer.referIn,
+    referOut: r.refer.referOut,
+    ems: r.refer.ems,
+    // Scores and Productivity Output
+    nurseScore: r.scores.nurseScore,
+    doctorScore: r.scores.doctorScore,
+    nurseTriageScore: r.scores.nurseTriageScore || 0,
+    doctorTriageScore: r.scores.doctorTriageScore || 0,
+    referInScore: r.scores.referInScore || 0,
+    referOutScore: r.scores.referOutScore || 0,
+    emsScore: r.scores.emsScore || 0,
+    referTotalScore: r.scores.referTotalScore || 0,
+    nurseProdPct: r.scores.nurseProdPct,
+    doctorProdPct: r.scores.doctorProdPct,
+    overload: r.scores.overload ? 'YES' : 'NO',
+    note: r.note || ''
   };
 }
 
