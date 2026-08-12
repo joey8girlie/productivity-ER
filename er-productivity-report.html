@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B3B4D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ER Productivity Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5FAFA;
+  --surface:#FFFFFF;
+  --surface-alt:#EEF5F5;
+  --ink:#0B3B4D;
+  --ink-soft:#4C7182;
+  --line:#E1EAEC;
+  --accent:#0E7C86;
+  --accent-dark:#0A5C63;
+  --mono-ink:#123244;
+
+  --resus:#7A1E1E;
+  --emergency:#E4483C;
+  --urgent:#F2994A;
+  --semi:#F2C94C;
+  --non:#27AE60;
+
+  --danger:#D64545;
+  --danger-glow:rgba(214,69,69,.25);
+  --ok:#27AE60;
+  --warn:#F2994A;
+
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 6px 20px rgba(11,59,77,.08);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;}
+body{min-height:100vh;}
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(78px + var(--safe-b));}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.display{font-family:'Kanit',sans-serif;}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--accent-dark),var(--accent));
+  color:#fff;padding:calc(16px + var(--safe-t)) 18px 16px;border-radius:0 0 22px 22px;box-shadow:var(--shadow);}
+.topbar h1{font-family:'Kanit',sans-serif;font-size:19px;font-weight:600;margin:0 0 2px;letter-spacing:.2px;}
+.topbar p{margin:0;font-size:12.5px;opacity:.85;}
+.topbar .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);
+  border-radius:999px;padding:4px 10px;font-size:12px;margin-top:10px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#8BE0A0;}
+
+/* ---------- generic ---------- */
+main{padding:16px 16px 24px;}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px;}
+.card h2{font-family:'Kanit',sans-serif;font-size:14.5px;font-weight:600;margin:0 0 12px;color:var(--ink);
+  display:flex;align-items:center;gap:8px;}
+.card h2 .em{font-size:16px;}
+label.field-label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+.row{display:flex;gap:10px;}
+.row > *{flex:1;}
+select,input[type=date],input[type=text],textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;
+  font-size:15px;font-family:'Sarabun',sans-serif;background:#fff;color:var(--ink);}
+textarea{resize:vertical;min-height:56px;}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+
+/* stepper rows for counts */
+.stepper-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;
+  border-bottom:1px solid var(--line);}
+.stepper-row:last-child{border-bottom:none;}
+.stepper-label{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:500;}
+.tri-dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+.stepper-ctrl{display:flex;align-items:center;gap:10px;}
+.stepper-ctrl button{width:34px;height:34px;border-radius:10px;border:none;background:var(--surface-alt);
+  color:var(--accent-dark);font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.stepper-ctrl button:active{background:var(--accent);color:#fff;}
+.stepper-ctrl .val{min-width:30px;text-align:center;font-size:16.5px;}
+
+.save-btn{width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;
+  font-family:'Kanit',sans-serif;font-size:16px;font-weight:600;box-shadow:0 6px 16px rgba(14,124,134,.35);
+  margin-top:4px;}
+.save-btn:active{background:var(--accent-dark);}
+.ghost-btn{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;
+  color:var(--ink);font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:600;}
+
+/* ---------- bottom nav ---------- */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);
+  max-width:480px;margin:0 auto;padding:8px 6px calc(8px + var(--safe-b));display:flex;box-shadow:0 -6px 18px rgba(11,59,77,.06);}
+.nav-btn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--ink-soft);font-size:11px;font-family:'Sarabun',sans-serif;font-weight:600;padding:6px 0;border-radius:12px;}
+.nav-btn .ic{font-size:20px;}
+.nav-btn.active{color:var(--accent-dark);background:var(--surface-alt);}
+
+section.view{display:none;}
+section.view.active{display:block;}
+
+/* ---------- history ---------- */
+.hist-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);
+  background:#fff;border:1px solid var(--line);margin-bottom:10px;}
+.hist-item .hd{flex:1;}
+.hist-item .hd .d1{font-weight:600;font-size:14.5px;}
+.hist-item .hd .d2{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.hist-flag{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;}
+.hist-flag.ok{background:#E7F7EC;color:var(--ok);}
+.hist-flag.over{background:#FCEAEA;color:var(--danger);}
+.sync-ic{font-size:15px;opacity:.6;}
+.empty-state{text-align:center;padding:40px 10px;color:var(--ink-soft);font-size:13.5px;}
+.empty-state .em{font-size:34px;display:block;margin-bottom:8px;}
+
+/* ---------- settings ---------- */
+.weight-grid{display:grid;grid-template-columns:1fr 90px;gap:8px 10px;align-items:center;}
+.weight-grid label{font-size:13.5px;color:var(--ink);}
+.weight-grid input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;font-size:14px;
+  font-family:'JetBrains Mono',monospace;text-align:right;}
+.sub-h{font-size:12px;font-weight:700;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.5px;
+  margin:14px 0 8px;}
+.hint{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:4px;}
+.status-line{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);margin-top:10px;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none;}
+.status-dot.on{background:var(--ok);}
+
+/* ---------- report overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(11,59,77,.45);z-index:50;display:none;
+  align-items:flex-end;justify-content:center;}
+.overlay.active{display:flex;}
+.report-sheet{width:100%;max-width:480px;max-height:92vh;overflow-y:auto;background:var(--bg);
+  border-radius:24px 24px 0 0;padding:18px 16px calc(20px + var(--safe-b));animation:slideUp .28s ease;}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sheet-handle{width:40px;height:4px;border-radius:3px;background:var(--line);margin:0 auto 14px;}
+.report-card{background:#fff;border-radius:20px;padding:18px;box-shadow:var(--shadow);}
+.report-title{display:flex;align-items:center;gap:8px;font-family:'Kanit',sans-serif;font-size:17px;
+  font-weight:600;color:var(--accent-dark);margin-bottom:10px;}
+.rep-line{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:4px;color:var(--ink);}
+.rep-line b{font-weight:600;}
+.rep-divider{height:1px;background:var(--line);margin:14px 0;}
+.rep-sub{font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;color:var(--ink-soft);
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.tri-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:14.5px;}
+.tri-row .l{display:flex;align-items:center;gap:9px;}
+.tri-row .v{font-family:'JetBrains Mono',monospace;font-weight:700;}
+.refer-line{font-size:14.5px;margin-top:2px;}
+
+.score-wrap{display:flex;align-items:center;gap:16px;margin-top:6px;}
+.ring-holder{position:relative;width:96px;height:96px;flex:none;}
+.ring-holder svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:#EEF5F5;stroke-width:9;}
+.ring-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-center .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:19px;}
+.ring-center .lab{font-size:9.5px;color:var(--ink-soft);margin-top:1px;}
+.ring-pulse{animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 0 var(--danger-glow));}50%{filter:drop-shadow(0 0 6px var(--danger-glow));}}
+
+.score-list{flex:1;}
+.score-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;
+  border-bottom:1px dashed var(--line);}
+.score-row:last-child{border-bottom:none;}
+.score-row .sl{font-size:13px;color:var(--ink-soft);}
+.score-row .sv{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;}
+
+.overload-banner{margin-top:14px;background:linear-gradient(90deg,#FCEAEA,#FCEAEA);border:1.5px solid #F3C6C6;
+  border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;}
+.overload-banner .em{font-size:20px;}
+.overload-banner .tx b{display:block;font-size:13.5px;color:var(--danger);font-family:'Kanit',sans-serif;}
+.overload-banner .tx span{font-size:11.5px;color:#B23A3A;}
+
+.sheet-actions{display:flex;gap:10px;margin-top:16px;}
+.sheet-actions button{flex:1;}
+.toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .25s;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <h1>🚑 ER Productivity Report</h1>
+    <p>บันทึกข้อมูลเวรและดูรายงานทันทีหลังบันทึก</p>
+    <span class="badge"><span class="dot" id="syncDot"></span><span id="syncBadgeText">ยังไม่ตั้งค่าซิงค์</span></span>
+  </div>
+
+  <main>
+    <!-- ===================== ENTRY VIEW ===================== -->
+    <section class="view active" id="view-entry">
+      <div class="card">
+        <h2><span class="em">🗓️</span> ข้อมูลเวร</h2>
+        <div class="row" style="margin-bottom:10px;">
+          <div>
+            <label class="field-label">วันที่</label>
+            <input type="date" id="f-date">
+          </div>
+          <div>
+            <label class="field-label">เวร</label>
+            <select id="f-shift">
+              <option value="เช้า">เช้า</option>
+              <option value="บ่าย">บ่าย</option>
+              <option value="ดึก">ดึก</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label">👩‍⚕️ พยาบาลเวร (คน)</label>
+        <div class="stepper-row" style="border:none;padding-top:0;">
+          <div class="stepper-label">จำนวนพยาบาล</div>
+          <div class="stepper-ctrl">
+            <button type="button" onclick="step('nurseCount',-1)">−</button>
+            <span class="val mono" id="v-nurseCount">7</span>
+            <button type="button" onclick="step('nurseCount',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">🧭</span> ผู้ป่วยแยกตามระดับความเร่งด่วน</h2>
+        <div class="stepper-row">
+          <div class="stepper-label"><span class="tri-dot" style="background:var(--resus)"></span>Resuscitation</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('resus',-1)">−</button><span class="val mono" id="v-resus">0</span><button type="button" onclick="step('resus',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label"><span class="tri-dot" style="background:var(--emergency)"></span>Emergency</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('emergency',-1)">−</button><span class="val mono" id="v-emergency">0</span><button type="button" onclick="step('emergency',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label"><span class="tri-dot" style="background:var(--urgent)"></span>Urgent</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('urgent',-1)">−</button><span class="val mono" id="v-urgent">0</span><button type="button" onclick="step('urgent',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label"><span class="tri-dot" style="background:var(--semi)"></span>Semi-urgent</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('semi',-1)">−</button><span class="val mono" id="v-semi">0</span><button type="button" onclick="step('semi',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label"><span class="tri-dot" style="background:var(--non)"></span>Non-urgent</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('non',-1)">−</button><span class="val mono" id="v-non">0</span><button type="button" onclick="step('non',1)">+</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">🚑</span> Refer / EMS</h2>
+        <div class="stepper-row">
+          <div class="stepper-label">Refer In</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('referIn',-1)">−</button><span class="val mono" id="v-referIn">0</span><button type="button" onclick="step('referIn',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label">Refer Out</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('referOut',-1)">−</button><span class="val mono" id="v-referOut">0</span><button type="button" onclick="step('referOut',1)">+</button></div>
+        </div>
+        <div class="stepper-row">
+          <div class="stepper-label">EMS</div>
+          <div class="stepper-ctrl"><button type="button" onclick="step('ems',-1)">−</button><span class="val mono" id="v-ems">0</span><button type="button" onclick="step('ems',1)">+</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">📝</span> หมายเหตุ (ถ้ามี)</h2>
+        <textarea id="f-note" placeholder="เหตุการณ์พิเศษ, เคสสำคัญ ฯลฯ"></textarea>
+      </div>
+
+      <button class="save-btn" onclick="saveRecord()">💾 บันทึกและดูรายงาน</button>
+    </section>
+
+    <!-- ===================== HISTORY VIEW ===================== -->
+    <section class="view" id="view-history">
+      <div class="card" style="margin-bottom:10px;">
+        <h2><span class="em">📚</span> ประวัติการบันทึก</h2>
+        <div class="hint">แตะรายการเพื่อดูรายงานอีกครั้ง</div>
+      </div>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- ===================== SETTINGS VIEW ===================== -->
+    <section class="view" id="view-settings">
+      <div class="card">
+        <h2><span class="em">🔗</span> ซิงค์กับ Google Sheet</h2>
+        <label class="field-label">Apps Script Web App URL</label>
+        <input type="text" id="s-url" placeholder="https://script.google.com/macros/s/xxxx/exec">
+        <div class="hint">สร้าง Google Sheet ใหม่ → เปิด Extensions → Apps Script → วางโค้ด apps-script-er-sync.gs ที่แนบให้ → Deploy เป็น Web App (Execute as: Me, Who has access: Anyone) → คัดลอกลิงก์มาวางที่นี่</div>
+        <div class="status-line"><span class="status-dot" id="s-statusDot"></span><span id="s-statusText">ยังไม่ได้เชื่อมต่อ</span></div>
+        <button class="ghost-btn" style="margin-top:12px;" onclick="testConnection()">ทดสอบการเชื่อมต่อ</button>
+        <button class="ghost-btn" style="margin-top:10px;" onclick="retrySync()">🔄 ซิงค์ข้อมูลที่ค้างอยู่ (<span id="pendingCount">0</span>)</button>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">⚖️</span> ค่าถ่วงน้ำหนักคะแนน Productivity</h2>
+        <div class="hint" style="margin-bottom:8px;">ปรับตัวเลขให้ตรงกับสูตรจริงของหน่วยงานได้ ค่าเริ่มต้นเป็นเพียงค่าตั้งต้นที่สมเหตุสมผลเท่านั้น</div>
+
+        <div class="sub-h">น้ำหนักผู้ป่วยต่อระดับ (ใช้ร่วมกับ Nurse &amp; Doctor)</div>
+        <div class="weight-grid">
+          <label>Resuscitation</label><input type="number" step="0.1" id="w-resus">
+          <label>Emergency</label><input type="number" step="0.1" id="w-emergency">
+          <label>Urgent</label><input type="number" step="0.1" id="w-urgent">
+          <label>Semi-urgent</label><input type="number" step="0.1" id="w-semi">
+          <label>Non-urgent</label><input type="number" step="0.1" id="w-non">
+        </div>
+
+        <div class="sub-h">น้ำหนัก Refer / EMS</div>
+        <div class="weight-grid">
+          <label>Refer In</label><input type="number" step="0.1" id="w-referIn">
+          <label>Refer Out</label><input type="number" step="0.1" id="w-referOut">
+          <label>EMS</label><input type="number" step="0.1" id="w-ems">
+        </div>
+
+        <div class="sub-h">ตัวคูณสูตรคำนวณคะแนน</div>
+        <div class="weight-grid">
+          <label>Nurse factor (÷ จำนวนพยาบาล ×)</label><input type="number" step="0.1" id="f-nurseFactor">
+          <label>Doctor factor (×)</label><input type="number" step="0.1" id="f-doctorFactor">
+          <label>Refer/EMS factor (×)</label><input type="number" step="0.1" id="f-referFactor">
+        </div>
+
+        <div class="sub-h">เกณฑ์แจ้งเตือน OVERLOAD (สูงกว่า)</div>
+        <div class="weight-grid">
+          <label>Nurse score &gt;</label><input type="number" id="t-nurse">
+          <label>Refer/EMS score &gt;</label><input type="number" id="t-refer">
+          <label>Doctor score &gt;</label><input type="number" id="t-doctor">
+        </div>
+
+        <button class="save-btn" style="margin-top:14px;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
+        <button class="ghost-btn" style="margin-top:10px;" onclick="resetWeights()">คืนค่าเริ่มต้น</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="bottomnav">
+    <button class="nav-btn active" data-view="entry" onclick="showView('entry')"><span class="ic">📝</span>บันทึก</button>
+    <button class="nav-btn" data-view="history" onclick="showView('history')"><span class="ic">📚</span>ประวัติ</button>
+    <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="ic">⚙️</span>ตั้งค่า</button>
+  </div>
+</div>
+
+<!-- ===================== REPORT OVERLAY ===================== -->
+<div class="overlay" id="reportOverlay">
+  <div class="report-sheet">
+    <div class="sheet-handle"></div>
+    <div class="report-card" id="reportCardBody"></div>
+    <div class="sheet-actions">
+      <button class="ghost-btn" onclick="closeReport()">ปิด</button>
+      <button class="save-btn" onclick="newEntryFromReport()">+ บันทึกเวรถัดไป</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG & STORAGE ================= */
+const DEFAULT_CONFIG = {
+  appsScriptUrl:'',
+  weights:{resus:10, emergency:6, urgent:3, semi:2, non:1, referIn:3, referOut:2, ems:4},
+  factors:{nurseFactor:8, doctorFactor:2, referFactor:10},
+  thresholds:{nurse:150, referEms:100, doctor:350}
+};
+const LS_CONFIG='er_config_v1';
+const LS_RECORDS='er_records_v1';
+
+function loadConfig(){
+  try{
+    const raw=localStorage.getItem(LS_CONFIG);
+    if(!raw) return structuredClone(DEFAULT_CONFIG);
+    const parsed=JSON.parse(raw);
+    return {
+      appsScriptUrl: parsed.appsScriptUrl||'',
+      weights: Object.assign({}, DEFAULT_CONFIG.weights, parsed.weights),
+      factors: Object.assign({}, DEFAULT_CONFIG.factors, parsed.factors),
+      thresholds: Object.assign({}, DEFAULT_CONFIG.thresholds, parsed.thresholds)
+    };
+  }catch(e){ return structuredClone(DEFAULT_CONFIG); }
+}
+function saveConfigToStorage(cfg){ localStorage.setItem(LS_CONFIG, JSON.stringify(cfg)); }
+function loadRecords(){
+  try{ return JSON.parse(localStorage.getItem(LS_RECORDS))||[]; }catch(e){ return []; }
+}
+function saveRecordsToStorage(recs){ localStorage.setItem(LS_RECORDS, JSON.stringify(recs)); }
+
+let CFG = loadConfig();
+let RECORDS = loadRecords();
+
+/* ================= ENTRY FORM STATE ================= */
+const counters = {nurseCount:7, resus:0, emergency:0, urgent:0, semi:0, non:0, referIn:0, referOut:0, ems:0};
+function step(key, delta){
+  counters[key] = Math.max(0, counters[key] + delta);
+  document.getElementById('v-'+key).textContent = counters[key];
+}
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+/* ================= SCORE ENGINE ================= */
+function computeScores(c, cfg){
+  const w = cfg.weights, f = cfg.factors, t = cfg.thresholds;
+  const triageRaw = c.resus*w.resus + c.emergency*w.emergency + c.urgent*w.urgent + c.semi*w.semi + c.non*w.non;
+  const referRaw = c.referIn*w.referIn + c.referOut*w.referOut + c.ems*w.ems;
+  const nurseDivisor = Math.max(1, c.nurseCount);
+  const nurseScore = Math.round((triageRaw / nurseDivisor) * f.nurseFactor);
+  const doctorScore = Math.round(triageRaw * f.doctorFactor);
+  const referEmsScore = Math.round(referRaw * f.referFactor);
+  const overload = nurseScore > t.nurse || referEmsScore > t.referEms || doctorScore > t.doctor;
+  return {nurseScore, referEmsScore, doctorScore, overload, triageRaw, referRaw};
+}
+
+/* ================= SAVE RECORD ================= */
+function saveRecord(){
+  const date = document.getElementById('f-date').value;
+  const shift = document.getElementById('f-shift').value;
+  const note = document.getElementById('f-note').value.trim();
+  const counts = {resus:counters.resus, emergency:counters.emergency, urgent:counters.urgent, semi:counters.semi, non:counters.non};
+  const refer = {referIn:counters.referIn, referOut:counters.referOut, ems:counters.ems};
+  const nurseCount = counters.nurseCount;
+  const scores = computeScores({...counts, ...refer, nurseCount}, CFG);
+
+  const record = {
+    id: 'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    createdAt: new Date().toISOString(),
+    date, shift, nurseCount, counts, refer, note,
+    scores, synced:false
+  };
+  RECORDS.unshift(record);
+  saveRecordsToStorage(RECORDS);
+  renderHistory();
+  updatePendingCount();
+  openReport(record);
+  attemptSync(record);
+
+  // reset counters (keep nurseCount as-is for convenience)
+  ['resus','emergency','urgent','semi','non','referIn','referOut','ems'].forEach(k=>{
+    counters[k]=0; document.getElementById('v-'+k).textContent='0';
+  });
+  document.getElementById('f-note').value='';
+}
+
+/* ================= REPORT RENDER ================= */
+const triageDef = [
+  {key:'resus', label:'Resuscitation', color:'var(--resus)', em:'🔥'},
+  {key:'emergency', label:'Emergency', color:'var(--emergency)', em:'🔴'},
+  {key:'urgent', label:'Urgent', color:'var(--urgent)', em:'🟠'},
+  {key:'semi', label:'Semi-urgent', color:'var(--semi)', em:'🟡'},
+  {key:'non', label:'Non-urgent', color:'var(--non)', em:'🟢'}
+];
+
+function ringSvg(score, threshold, isOverloadRing){
+  const pct = Math.max(0, Math.min(1, score / (threshold*1.3 || 1)));
+  const r = 39, c = 2*Math.PI*r;
+  const offset = c - pct*c;
+  const color = score > threshold ? 'var(--danger)' : (pct>0.75 ? 'var(--warn)' : 'var(--accent)');
+  return `<div class="ring-holder">
+    <svg viewBox="0 0 96 96">
+      <circle class="ring-track" cx="48" cy="48" r="${r}"></circle>
+      <circle class="ring-fill ${score>threshold?'ring-pulse':''}" cx="48" cy="48" r="${r}"
+        stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"></circle>
+    </svg>
+    <div class="ring-center">
+      <span class="num" style="color:${color}">${score}</span>
+      <span class="lab">Doctor</span>
+    </div>
+  </div>`;
+}
+
+function buildReportHtml(rec){
+  const s = rec.scores;
+  const totalPatients = Object.values(rec.counts).reduce((a,b)=>a+b,0);
+  const triRows = triageDef.map(t=>`
+    <div class="tri-row">
+      <div class="l"><span class="tri-dot" style="background:${t.color};width:12px;height:12px;">${''}</span>${t.em} ${t.label}</div>
+      <div class="v">${rec.counts[t.key]}</div>
+    </div>`).join('');
+
+  const dateFmt = new Date(rec.date+'T00:00:00').toLocaleDateString('th-TH-u-ca-buddhist',{day:'2-digit',month:'short',year:'numeric'});
+
+  return `
+    <div class="report-title">📋 Productivity Report</div>
+    <div class="rep-line">🗓️ เวร<b>&nbsp;${rec.shift}</b>&nbsp;|&nbsp;<span>${dateFmt}</span></div>
+    <div class="rep-line">👩‍⚕️ พยาบาลเวร&nbsp;:&nbsp;<b>${rec.nurseCount} คน</b></div>
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">🧭 ผู้ป่วยแยกตามระดับความเร่งด่วน (รวม ${totalPatients})</div>
+    ${triRows}
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">🚑 Refer / EMS</div>
+    <div class="refer-line">Refer : In ${rec.refer.referIn} | Out ${rec.refer.referOut} | EMS ${rec.refer.ems}</div>
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">📊 Productivity Scores</div>
+    <div class="score-wrap">
+      ${ringSvg(s.doctorScore, CFG.thresholds.doctor)}
+      <div class="score-list">
+        <div class="score-row"><span class="sl">Nurse</span><span class="sv" style="color:${s.nurseScore>CFG.thresholds.nurse?'var(--danger)':'var(--mono-ink)'}">${s.nurseScore}</span></div>
+        <div class="score-row"><span class="sl">Refer/EMS</span><span class="sv" style="color:${s.referEmsScore>CFG.thresholds.referEms?'var(--danger)':'var(--mono-ink)'}">${s.referEmsScore}</span></div>
+        <div class="score-row"><span class="sl">Doctor</span><span class="sv" style="color:${s.doctorScore>CFG.thresholds.doctor?'var(--danger)':'var(--mono-ink)'}">${s.doctorScore}</span></div>
+      </div>
+    </div>
+
+    ${rec.note ? `<div class="rep-divider"></div><div class="rep-sub">📝 หมายเหตุ</div><div class="refer-line">${escapeHtml(rec.note)}</div>` : ''}
+
+    ${s.overload ? `
+    <div class="overload-banner">
+      <span class="em">🚨</span>
+      <div class="tx"><b>⚠️⚠️ Productivity สูงเกินปกติ</b><span>OVERLOAD — ควรพิจารณาขอกำลังเสริม</span></div>
+    </div>` : ''}
+  `;
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function openReport(rec){
+  document.getElementById('reportCardBody').innerHTML = buildReportHtml(rec);
+  document.getElementById('reportOverlay').classList.add('active');
+  window.__lastReportId = rec.id;
+}
+function closeReport(){ document.getElementById('reportOverlay').classList.remove('active'); }
+function newEntryFromReport(){ closeReport(); showView('entry'); }
+
+/* ================= HISTORY ================= */
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  if(RECORDS.length===0){
+    list.innerHTML = `<div class="empty-state"><span class="em">🗂️</span>ยังไม่มีข้อมูลที่บันทึก</div>`;
+    return;
+  }
+  list.innerHTML = RECORDS.map(r=>{
+    const dateFmt = new Date(r.date+'T00:00:00').toLocaleDateString('th-TH-u-ca-buddhist',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="hist-item" onclick="openReport(RECORDS.find(x=>x.id==='${r.id}'))">
+      <div class="hd">
+        <div class="d1">${dateFmt} · เวร${r.shift}</div>
+        <div class="d2">พยาบาล ${r.nurseCount} คน · Doctor ${r.scores.doctorScore}</div>
+      </div>
+      <span class="sync-ic">${r.synced?'☁️':'📴'}</span>
+      <span class="hist-flag ${r.scores.overload?'over':'ok'}">${r.scores.overload?'OVERLOAD':'ปกติ'}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ================= NAV ================= */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(name==='history') renderHistory();
+  if(name==='settings') fillSettingsForm();
+}
+
+/* ================= SETTINGS ================= */
+function fillSettingsForm(){
+  document.getElementById('s-url').value = CFG.appsScriptUrl;
+  document.getElementById('w-resus').value = CFG.weights.resus;
+  document.getElementById('w-emergency').value = CFG.weights.emergency;
+  document.getElementById('w-urgent').value = CFG.weights.urgent;
+  document.getElementById('w-semi').value = CFG.weights.semi;
+  document.getElementById('w-non').value = CFG.weights.non;
+  document.getElementById('w-referIn').value = CFG.weights.referIn;
+  document.getElementById('w-referOut').value = CFG.weights.referOut;
+  document.getElementById('w-ems').value = CFG.weights.ems;
+  document.getElementById('f-nurseFactor').value = CFG.factors.nurseFactor;
+  document.getElementById('f-doctorFactor').value = CFG.factors.doctorFactor;
+  document.getElementById('f-referFactor').value = CFG.factors.referFactor;
+  document.getElementById('t-nurse').value = CFG.thresholds.nurse;
+  document.getElementById('t-refer').value = CFG.thresholds.referEms;
+  document.getElementById('t-doctor').value = CFG.thresholds.doctor;
+  updateSyncBadge();
+  updatePendingCount();
+}
+function saveSettings(){
+  CFG = {
+    appsScriptUrl: document.getElementById('s-url').value.trim(),
+    weights:{
+      resus: numOr(document.getElementById('w-resus').value, DEFAULT_CONFIG.weights.resus),
+      emergency: numOr(document.getElementById('w-emergency').value, DEFAULT_CONFIG.weights.emergency),
+      urgent: numOr(document.getElementById('w-urgent').value, DEFAULT_CONFIG.weights.urgent),
+      semi: numOr(document.getElementById('w-semi').value, DEFAULT_CONFIG.weights.semi),
+      non: numOr(document.getElementById('w-non').value, DEFAULT_CONFIG.weights.non),
+      referIn: numOr(document.getElementById('w-referIn').value, DEFAULT_CONFIG.weights.referIn),
+      referOut: numOr(document.getElementById('w-referOut').value, DEFAULT_CONFIG.weights.referOut),
+      ems: numOr(document.getElementById('w-ems').value, DEFAULT_CONFIG.weights.ems)
+    },
+    factors:{
+      nurseFactor: numOr(document.getElementById('f-nurseFactor').value, DEFAULT_CONFIG.factors.nurseFactor),
+      doctorFactor: numOr(document.getElementById('f-doctorFactor').value, DEFAULT_CONFIG.factors.doctorFactor),
+      referFactor: numOr(document.getElementById('f-referFactor').value, DEFAULT_CONFIG.factors.referFactor)
+    },
+    thresholds:{
+      nurse: numOr(document.getElementById('t-nurse').value, DEFAULT_CONFIG.thresholds.nurse),
+      referEms: numOr(document.getElementById('t-refer').value, DEFAULT_CONFIG.thresholds.referEms),
+      doctor: numOr(document.getElementById('t-doctor').value, DEFAULT_CONFIG.thresholds.doctor)
+    }
+  };
+  saveConfigToStorage(CFG);
+  updateSyncBadge();
+  showToast('บันทึกการตั้งค่าแล้ว');
+}
+function numOr(v, fallback){ const n=parseFloat(v); return isNaN(n)?fallback:n; }
+function resetWeights(){ CFG = structuredClone(DEFAULT_CONFIG); CFG.appsScriptUrl = document.getElementById('s-url').value.trim(); saveConfigToStorage(CFG); fillSettingsForm(); showToast('คืนค่าเริ่มต้นแล้ว'); }
+
+function updateSyncBadge(){
+  const has = !!CFG.appsScriptUrl;
+  document.getElementById('syncDot').style.background = has ? '#8BE0A0' : '#ffffff66';
+  document.getElementById('syncBadgeText').textContent = has ? 'เชื่อมต่อ Google Sheet แล้ว' : 'ยังไม่ตั้งค่าซิงค์';
+  document.getElementById('s-statusDot').classList.toggle('on', has);
+  document.getElementById('s-statusText').textContent = has ? 'ตั้งค่า URL แล้ว (กดทดสอบเพื่อยืนยัน)' : 'ยังไม่ได้เชื่อมต่อ';
+}
+function updatePendingCount(){
+  const n = RECORDS.filter(r=>!r.synced).length;
+  document.getElementById('pendingCount').textContent = n;
+}
+
+/* ================= SYNC ================= */
+async function postToSheet(payload){
+  if(!CFG.appsScriptUrl) return {ok:false, error:'no-url'};
+  try{
+    const res = await fetch(CFG.appsScriptUrl, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({ok:true}));
+    return {ok: data.ok !== false};
+  }catch(e){
+    return {ok:false, error:String(e)};
+  }
+}
+async function attemptSync(record){
+  if(!CFG.appsScriptUrl) return;
+  const result = await postToSheet({action:'append', row: flattenRecord(record)});
+  if(result.ok){
+    record.synced = true;
+    saveRecordsToStorage(RECORDS);
+    renderHistory();
+    updatePendingCount();
+  }
+}
+async function retrySync(){
+  if(!CFG.appsScriptUrl){ showToast('กรุณาตั้งค่า Apps Script URL ก่อน'); return; }
+  const pending = RECORDS.filter(r=>!r.synced);
+  if(pending.length===0){ showToast('ไม่มีข้อมูลค้างซิงค์'); return; }
+  showToast('กำลังซิงค์ '+pending.length+' รายการ...');
+  for(const rec of pending){ await attemptSync(rec); }
+  showToast('ซิงค์เสร็จสิ้น');
+}
+async function testConnection(){
+  const url = document.getElementById('s-url').value.trim();
+  if(!url){ showToast('กรุณากรอก URL ก่อน'); return; }
+  CFG.appsScriptUrl = url; saveConfigToStorage(CFG); updateSyncBadge();
+  const result = await postToSheet({action:'ping'});
+  document.getElementById('s-statusText').textContent = result.ok ? '✅ เชื่อมต่อสำเร็จ' : '❌ เชื่อมต่อไม่สำเร็จ ตรวจสอบ URL/การ Deploy';
+  document.getElementById('s-statusDot').classList.toggle('on', result.ok);
+}
+function flattenRecord(r){
+  return {
+    id:r.id, createdAt:r.createdAt, date:r.date, shift:r.shift, nurseCount:r.nurseCount,
+    resuscitation:r.counts.resus, emergency:r.counts.emergency, urgent:r.counts.urgent,
+    semiUrgent:r.counts.semi, nonUrgent:r.counts.non,
+    referIn:r.refer.referIn, referOut:r.refer.referOut, ems:r.refer.ems,
+    nurseScore:r.scores.nurseScore, referEmsScore:r.scores.referEmsScore, doctorScore:r.scores.doctorScore,
+    overload: r.scores.overload ? 'YES' : 'NO', note:r.note||''
+  };
+}
+
+/* ================= TOAST ================= */
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ================= INIT ================= */
+renderHistory();
+updatePendingCount();
+updateSyncBadge();
+</script>
+</body>
+</html>
