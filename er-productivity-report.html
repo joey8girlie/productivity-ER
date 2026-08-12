@@ -1,383 +1,698 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ER Productivity Calculator (Standard Version)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B4F6C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ER Productivity Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Theme: Sea Blue / Ocean Turquoise */
+  --bg:#F0F7F9;
+  --surface:#FFFFFF;
+  --surface-alt:#E1F0F4;
+  --ink:#082F3B;
+  --ink-soft:#436E7C;
+  --line:#CDE1E6;
+  --accent:#00838F;      /* Ocean Cyan */
+  --accent-dark:#005662; /* Deep Teal */
+  --accent-light:#E0F7FA;
+  --mono-ink:#0B3A48;
 
-  <style>
-    :root {
-      --bg-header: #0F5A57;
-      --bg-main: #F4F7F6;
-      --card-bg: #FFFFFF;
-      --border-color: #E2E8F0;
-      --text-main: #1E293B;
-      --text-muted: #64748B;
-      --accent-teal: #0D9488;
-      
-      --status-under: #3B82F6;  /* ฟ้า */
-      --status-optimal: #10B981; /* เขียว */
-      --status-over: #EF4444;    /* แดง */
-    }
+  --resus:#8B0000;
+  --emergency:#D32F2F;
+  --urgent:#F57C00;
+  --semi:#FBC02D;
+  --non:#388E3C;
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 40px; }
+  --danger:#D32F2F;
+  --danger-glow:rgba(211,47,47,.25);
+  --ok:#2E7D32;
+  --warn:#F57C00;
 
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, #0F5A57 0%, #134E4A 100%);
-      color: #FFF;
-      padding: 24px 20px;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .header h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
-    .header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 8px 24px rgba(8,47,59,.07);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',sans-serif;}
+body{min-height:100vh;}
+.app{max-width:500px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(82px + var(--safe-b));}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.display{font-family:'Kanit',sans-serif;}
 
-    .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
+/* ---------- topbar ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg, #0A323D 0%, #006064 50%, #00838F 100%);
+  color:#fff;padding:calc(16px + var(--safe-t)) 20px 18px;border-radius:0 0 24px 24px;box-shadow:0 8px 20px rgba(0,67,78,.25);}
+.topbar h1{font-family:'Kanit',sans-serif;font-size:20px;font-weight:600;margin:0 0 2px;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
+.topbar p{margin:0;font-size:12.5px;opacity:.9;font-weight:400;}
+.topbar .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);
+  border-radius:999px;padding:4px 12px;font-size:12px;margin-top:10px;backdrop-filter:blur(4px);}
+.dot{width:8px;height:8px;border-radius:50%;background:#80CBC4;}
 
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    }
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--bg-header);
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--bg-main);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+/* ---------- main layout ---------- */
+main{padding:16px 16px 24px;}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;border:1px solid rgba(205,225,230,.5);}
+.card h2{font-family:'Kanit',sans-serif;font-size:15px;font-weight:600;margin:0 0 14px;color:var(--ink);
+  display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--accent-light);padding-bottom:8px;}
+.card h2 .em{font-size:18px;}
+label.field-label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+.row{display:flex;gap:12px;}
+.row > *{flex:1;}
+select,input[type=date],input[type=text],textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;
+  font-size:15px;font-family:'Sarabun',sans-serif;background:#fff;color:var(--ink);transition:all .2s;}
+textarea{resize:vertical;min-height:64px;}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,131,143,.15);}
 
-    /* Grid Form */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .form-grid.header-row {
-      font-weight: 600;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
-    .form-grid label { font-size: 0.9rem; }
-    
-    input[type="number"] {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-      outline: none;
-    }
-    input[type="number"]:focus { border-color: var(--accent-teal); }
+/* direct input rows */
+.input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);}
+.input-row:last-child{border-bottom:none;}
+.input-label{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:500;}
+.tri-dot{width:12px;height:12px;border-radius:50%;flex:none;}
 
-    /* Staffing Input */
-    .staff-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .staff-box {
-      background-color: #F8FAFC;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-    }
-    .staff-box h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 8px; }
+/* Number Input Box */
+.num-input{
+  width:95px;text-align:center;font-size:17px;font-weight:700;
+  border:1.5px solid var(--line);border-radius:10px;padding:8px 6px;
+  background:#fff;color:var(--accent-dark);box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
+}
+.num-input:focus{outline:none;border-color:var(--accent);background:var(--accent-light);}
 
-    /* Button */
-    .btn-calc {
-      width: 100%;
-      padding: 14px;
-      background-color: var(--accent-teal);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-calc:hover { background-color: #0F766E; }
+.save-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg, var(--accent), var(--accent-dark));color:#fff;
+  font-family:'Kanit',sans-serif;font-size:16.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,131,143,.3);
+  cursor:pointer;transition:transform .1s, box-shadow .2s;margin-top:6px;}
+.save-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,131,143,.2);}
+.ghost-btn{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;
+  color:var(--ink);font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:600;cursor:pointer;}
+.ghost-btn:active{background:var(--surface-alt);}
 
-    /* Result Dashboard */
-    .result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .result-card {
-      padding: 16px;
-      border-radius: 12px;
-      text-align: center;
-      background: #F8FAFC;
-      border: 1px solid var(--border-color);
-    }
-    .result-card h3 { font-size: 0.95rem; color: var(--text-muted); }
-    .result-value { font-size: 2rem; font-weight: 700; margin: 8px 0; }
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #FFF;
-    }
+/* ---------- bottom nav ---------- */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);
+  max-width:500px;margin:0 auto;padding:8px 8px calc(8px + var(--safe-b));display:flex;box-shadow:0 -6px 20px rgba(8,47,59,.06);}
+.nav-btn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--ink-soft);font-size:11.5px;font-family:'Sarabun',sans-serif;font-weight:600;padding:6px 0;border-radius:12px;cursor:pointer;}
+.nav-btn .ic{font-size:20px;}
+.nav-btn.active{color:var(--accent-dark);background:var(--surface-alt);}
 
-    @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1.5fr 1fr 1fr; }
-      .result-grid, .staff-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+section.view{display:none;}
+section.view.active{display:block;}
+
+/* ---------- history ---------- */
+.hist-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--radius-sm);
+  background:#fff;border:1px solid var(--line);margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.02);cursor:pointer;}
+.hist-item:active{background:var(--surface-alt);}
+.hist-item .hd{flex:1;}
+.hist-item .hd .d1{font-weight:600;font-size:15px;color:var(--ink);}
+.hist-item .hd .d2{font-size:12.5px;color:var(--ink-soft);margin-top:3px;}
+.hist-flag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
+.hist-flag.ok{background:#E8F5E9;color:var(--ok);}
+.hist-flag.over{background:#FFEBEE;color:var(--danger);}
+.sync-ic{font-size:15px;opacity:.7;}
+.empty-state{text-align:center;padding:40px 10px;color:var(--ink-soft);font-size:14px;}
+.empty-state .em{font-size:36px;display:block;margin-bottom:8px;}
+
+/* ---------- settings ---------- */
+.weight-grid{display:grid;grid-template-columns:1fr 95px;gap:10px;align-items:center;}
+.weight-grid label{font-size:13.5px;color:var(--ink);}
+.weight-grid input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px;font-size:14px;
+  font-family:'JetBrains Mono',monospace;text-align:right;}
+.sub-h{font-size:12.5px;font-weight:700;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.5px;
+  margin:16px 0 10px;padding-bottom:4px;border-bottom:1px stroke var(--line);}
+.hint{font-size:12.5px;color:var(--ink-soft);line-height:1.55;margin-top:4px;}
+.status-card{background:var(--accent-light);border:1px solid #B2EBF2;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+
+/* ---------- report overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(8,47,59,.5);backdrop-filter:blur(3px);z-index:50;display:none;
+  align-items:flex-end;justify-content:center;}
+.overlay.active{display:flex;}
+.report-sheet{width:100%;max-width:500px;max-height:92vh;overflow-y:auto;background:var(--bg);
+  border-radius:24px 24px 0 0;padding:20px 16px calc(20px + var(--safe-b));animation:slideUp .28s ease;}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sheet-handle{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 16px;}
+.report-card{background:#fff;border-radius:20px;padding:20px;box-shadow:var(--shadow);}
+.report-title{display:flex;align-items:center;gap:8px;font-family:'Kanit',sans-serif;font-size:18px;
+  font-weight:600;color:var(--accent-dark);margin-bottom:12px;}
+.rep-line{display:flex;align-items:center;gap:8px;font-size:14.5px;margin-bottom:6px;color:var(--ink);}
+.rep-line b{font-weight:600;}
+.rep-divider{height:1px;background:var(--line);margin:14px 0;}
+.rep-sub{font-family:'Kanit',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink-soft);
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.tri-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:14.5px;}
+.tri-row .l{display:flex;align-items:center;gap:10px;}
+.tri-row .v{font-family:'JetBrains Mono',monospace;font-weight:700;}
+.refer-line{font-size:14.5px;margin-top:2px;color:var(--ink);}
+
+.score-wrap{display:flex;align-items:center;gap:16px;margin-top:8px;}
+.ring-holder{position:relative;width:98px;height:98px;flex:none;}
+.ring-holder svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:var(--surface-alt);stroke-width:9;}
+.ring-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-center .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;}
+.ring-center .lab{font-size:10px;color:var(--ink-soft);margin-top:1px;}
+.ring-pulse{animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 0 var(--danger-glow));}50%{filter:drop-shadow(0 0 6px var(--danger-glow));}}
+
+.score-list{flex:1;}
+.score-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;
+  border-bottom:1px dashed var(--line);}
+.score-row:last-child{border-bottom:none;}
+.score-row .sl{font-size:13.5px;color:var(--ink-soft);}
+.score-row .sv{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16.5px;}
+
+.overload-banner{margin-top:16px;background:#FFEBEE;border:1.5px solid #FFCDD2;
+  border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.overload-banner .em{font-size:22px;}
+.overload-banner .tx b{display:block;font-size:14px;color:var(--danger);font-family:'Kanit',sans-serif;}
+.overload-banner .tx span{font-size:12px;color:#C62828;}
+
+.sheet-actions{display:flex;gap:10px;margin-top:16px;}
+.sheet-actions button{flex:1;}
+.toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-size:13.5px;z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.show{opacity:1;}
+</style>
 </head>
 <body>
+<div class="app">
 
-  <div class="header">
-    <h1>🚑 ER Productivity Calculator</h1>
-    <p>ระบบบันทึกภาระงานและคำนวณ Productivity แบบแยกวิชาชีพ (ปรับปรุงแม่นยำ)</p>
+  <div class="topbar">
+    <h1>🚑 ER Productivity Report</h1>
+    <p>ระบบบันทึกภาระงานและคำนวณ Productivity เวร ER</p>
+    <span class="badge"><span class="dot" id="syncDot"></span><span id="syncBadgeText">เชื่อมต่อระบบแล้ว</span></span>
   </div>
 
-  <div class="container">
-    
-    <!-- 1. จำนวนบุคลากรในเวร -->
-    <div class="card">
-      <div class="card-title">👥 อัตรากำลังในเวรปฏิบัติงาน (8 ชั่วโมง)</div>
-      <div class="staff-grid">
-        <div class="staff-box">
-          <h4>พยาบาล (Nurse)</h4>
-          <label style="font-size: 0.8rem; color: var(--text-muted);">จำนวนพยาบาลในเวร (คน):</label>
-          <input type="number" id="nurse_count" value="4" min="1">
-        </div>
-        <div class="staff-box">
-          <h4>แพทย์ (Doctor)</h4>
-          <label style="font-size: 0.8rem; color: var(--text-muted);">จำนวนแพทย์ในเวร (คน):</label>
-          <input type="number" id="doc_count" value="2" min="1">
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. ตารางกรอกเคส + ตั้งค่าน้ำหนัก -->
-    <div class="card">
-      <div class="card-title">
-        <span>⚖️ บันทึกภาระงาน & ค่าน้ำหนัก</span>
-        <span style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted);">*แก้ไขค่าน้ำหนักได้</span>
-      </div>
-
-      <div class="form-grid header-row">
-        <span style="text-align: left;">ประเภทเคส / Triage</span>
-        <span>น้ำหนักพยาบาล</span>
-        <span>น้ำหนักแพทย์</span>
-      </div>
-
-      <!-- Resuscitation -->
-      <div class="form-grid">
-        <label>1. Resuscitation (วิกฤต)</label>
-        <input type="number" id="w_n_resus" value="10">
-        <input type="number" id="w_d_resus" value="10">
-      </div>
-
-      <!-- Emergency -->
-      <div class="form-grid">
-        <label>2. Emergency (ฉุกเฉินมาก)</label>
-        <input type="number" id="w_n_emer" value="6">
-        <input type="number" id="w_d_emer" value="5">
-      </div>
-
-      <!-- Urgent -->
-      <div class="form-grid">
-        <label>3. Urgent (ฉุกเฉิน)</label>
-        <input type="number" id="w_n_urg" value="3">
-        <input type="number" id="w_d_urg" value="2">
-      </div>
-
-      <!-- Semi-urgent -->
-      <div class="form-grid">
-        <label>4. Semi-urgent (น้อย)</label>
-        <input type="number" id="w_n_semi" value="2">
-        <input type="number" id="w_d_semi" value="1">
-      </div>
-
-      <!-- Non-urgent -->
-      <div class="form-grid">
-        <label>5. Non-urgent (ไม่ฉุกเฉิน)</label>
-        <input type="number" id="w_n_non" value="1">
-        <input type="number" id="w_d_non" value="0.5">
-      </div>
-
-      <!-- Refer In/Out / EMS -->
-      <hr style="margin: 12px 0; border: none; border-top: 1px dashed var(--border-color);">
-
-      <div class="form-grid">
-        <label>Refer In (รับเข้า)</label>
-        <input type="number" id="w_n_refin" value="3">
-        <input type="number" id="w_d_refin" value="1.5">
-      </div>
-      <div class="form-grid">
-        <label>Refer Out (ส่งต่อ)</label>
-        <input type="number" id="w_n_refout" value="3">
-        <input type="number" id="w_d_refout" value="1.5">
-      </div>
-      <div class="form-grid">
-        <label>EMS (อกรับผู้ป่วย)</label>
-        <input type="number" id="w_n_ems" value="4">
-        <input type="number" id="w_d_ems" value="2">
-      </div>
-
-      <!-- กรอกจำนวนเคสจริง -->
-      <h4 style="margin-top: 20px; margin-bottom: 10px; color: var(--bg-header);">📥 ปริมาณเคสจริงในเวรนี้</h4>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-        <div><label style="font-size: 0.8rem;">Resuscitation</label><input type="number" id="c_resus" value="2"></div>
-        <div><label style="font-size: 0.8rem;">Emergency</label><input type="number" id="c_emer" value="5"></div>
-        <div><label style="font-size: 0.8rem;">Urgent</label><input type="number" id="c_urg" value="12"></div>
-        <div><label style="font-size: 0.8rem;">Semi-urgent</label><input type="number" id="c_semi" value="15"></div>
-        <div><label style="font-size: 0.8rem;">Non-urgent</label><input type="number" id="c_non" value="8"></div>
-        <div><label style="font-size: 0.8rem;">Refer In</label><input type="number" id="c_refin" value="2"></div>
-        <div><label style="font-size: 0.8rem;">Refer Out</label><input type="number" id="c_refout" value="3"></div>
-        <div><label style="font-size: 0.8rem;">EMS</label><input type="number" id="c_ems" value="1"></div>
-      </div>
-    </div>
-
-    <button class="btn-calc" onclick="calculateProductivity()">คำนวณ Productivity</button>
-
-    <!-- 3. ผลลัพธ์ -->
-    <div class="card" style="margin-top: 20px;">
-      <div class="card-title">📊 สรุปผล Productivity ประจำเวร</div>
-      <div class="result-grid">
-        
-        <!-- พยาบาล -->
-        <div class="result-card">
-          <h3>NURSE Productivity</h3>
-          <div class="result-value" id="nurse_prod_text">0%</div>
-          <span class="status-badge" id="nurse_badge" style="background-color: var(--text-muted);">-</span>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-            Score รวม: <span id="nurse_score">0</span> / เป้าหมาย: <span id="nurse_target">0</span>
-          </p>
+  <main>
+    <!-- ===================== ENTRY VIEW ===================== -->
+    <section class="view active" id="view-entry">
+      <div class="card">
+        <h2><span class="em">🗓️</span> ข้อมูลเวรและบุคลากร</h2>
+        <div class="row" style="margin-bottom:12px;">
+          <div>
+            <label class="field-label">วันที่</label>
+            <input type="date" id="f-date">
+          </div>
+          <div>
+            <label class="field-label">เวร</label>
+            <select id="f-shift">
+              <option value="เช้า">เช้า</option>
+              <option value="บ่าย">บ่าย</option>
+              <option value="ดึก">ดึก</option>
+            </select>
+          </div>
         </div>
 
-        <!-- แพทย์ -->
-        <div class="result-card">
-          <h3>DOCTOR Productivity</h3>
-          <div class="result-value" id="doc_prod_text">0%</div>
-          <span class="status-badge" id="doc_badge" style="background-color: var(--text-muted);">-</span>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-            Score รวม: <span id="doc_score">0</span> / เป้าหมาย: <span id="doc_target">0</span>
-          </p>
+        <div class="row">
+          <div>
+            <label class="field-label">👩‍⚕️ พยาบาลเวร (คน)</label>
+            <input type="number" id="f-nurseCount" class="num-input mono" style="width:100%;" min="1" value="7" inputmode="numeric">
+          </div>
+          <div>
+            <label class="field-label">👨‍⚕️ แพทย์เวร (คน)</label>
+            <input type="number" id="f-doctorCount" class="num-input mono" style="width:100%;" min="1" value="1" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">🧭</span> ผู้ป่วยจำแนกตามระดับความเร่งด่วน</h2>
+        <div class="input-row">
+          <div class="input-label"><span class="tri-dot" style="background:var(--resus)"></span>Resuscitation</div>
+          <input type="number" id="f-resus" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label"><span class="tri-dot" style="background:var(--emergency)"></span>Emergency</div>
+          <input type="number" id="f-emergency" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label"><span class="tri-dot" style="background:var(--urgent)"></span>Urgent</div>
+          <input type="number" id="f-urgent" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label"><span class="tri-dot" style="background:var(--semi)"></span>Semi-urgent</div>
+          <input type="number" id="f-semi" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label"><span class="tri-dot" style="background:var(--non)"></span>Non-urgent</div>
+          <input type="number" id="f-non" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">🚑</span> Refer / EMS</h2>
+        <div class="input-row">
+          <div class="input-label">Refer In</div>
+          <input type="number" id="f-referIn" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label">Refer Out</div>
+          <input type="number" id="f-referOut" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+        <div class="input-row">
+          <div class="input-label">EMS</div>
+          <input type="number" id="f-ems" class="num-input mono" min="0" value="0" inputmode="numeric" onfocus="this.select()">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">📝</span> หมายเหตุ (ถ้ามี)</h2>
+        <textarea id="f-note" placeholder="เหตุการณ์พิเศษ, เคสสำคัญ ฯลฯ"></textarea>
+      </div>
+
+      <button class="save-btn" onclick="saveRecord()">💾 บันทึกและดูรายงาน</button>
+    </section>
+
+    <!-- ===================== HISTORY VIEW ===================== -->
+    <section class="view" id="view-history">
+      <div class="card" style="margin-bottom:12px;">
+        <h2><span class="em">📚</span> ประวัติการบันทึก</h2>
+        <div class="hint">แตะที่รายการเพื่อเปิดดูรายละเอียดรายงาน</div>
+      </div>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- ===================== SETTINGS VIEW ===================== -->
+    <section class="view" id="view-settings">
+      <div class="card">
+        <h2><span class="em">☁️</span> สถานะการซิงค์ Google Sheet</h2>
+        <div class="status-card">
+          <span style="font-size:20px;">🟢</span>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--accent-dark);">ฝัง URL เชื่อมต่ออัตโนมัติแล้ว</div>
+            <div style="font-size:12px;color:var(--ink-soft);">ข้อมูลจะถูกซิงค์ไปยัง Google Sheet อัตโนมัติเมื่อบันทึก</div>
+          </div>
+        </div>
+        <button class="ghost-btn" style="margin-top:6px;" onclick="testConnection()">🧪 ทดสอบการเชื่อมต่อ Google Sheet</button>
+        <button class="ghost-btn" style="margin-top:10px;" onclick="retrySync()">🔄 ซิงค์ข้อมูลที่ค้างอยู่ (<span id="pendingCount">0</span>)</button>
+      </div>
+
+      <div class="card">
+        <h2><span class="em">⚖️</span> ค่าถ่วงน้ำหนัก Productivity</h2>
+        <div class="hint" style="margin-bottom:12px;">ปรับตัวเลขให้ตรงตามเกณฑ์ของหน่วยงานได้ตามต้องการ</div>
+
+        <div class="sub-h">ค่าน้ำหนักผู้ป่วย (ใช้คำนวณ Nurse &amp; Doctor Score)</div>
+        <div class="weight-grid">
+          <label>Resuscitation</label><input type="number" step="0.1" id="w-resus">
+          <label>Emergency</label><input type="number" step="0.1" id="w-emergency">
+          <label>Urgent</label><input type="number" step="0.1" id="w-urgent">
+          <label>Semi-urgent</label><input type="number" step="0.1" id="w-semi">
+          <label>Non-urgent</label><input type="number" step="0.1" id="w-non">
         </div>
 
-      </div>
-    </div>
+        <div class="sub-h">ค่าน้ำหนัก Refer / EMS</div>
+        <div class="weight-grid">
+          <label>Refer In</label><input type="number" step="0.1" id="w-referIn">
+          <label>Refer Out</label><input type="number" step="0.1" id="w-referOut">
+          <label>EMS</label><input type="number" step="0.1" id="w-ems">
+        </div>
 
+        <div class="sub-h">ตัวคูณสูตรคำนวณคะแนน (Factors)</div>
+        <div class="weight-grid">
+          <label>Nurse Factor (×)</label><input type="number" step="0.1" id="f-nurseFactor">
+          <label>Doctor Factor (×)</label><input type="number" step="0.1" id="f-doctorFactor">
+          <label>Refer/EMS Factor (×)</label><input type="number" step="0.1" id="f-referFactor">
+        </div>
+
+        <div class="sub-h">เกณฑ์แจ้งเตือน OVERLOAD (เมื่อคะแนนเกิน)</div>
+        <div class="weight-grid">
+          <label>Nurse Score &gt;</label><input type="number" id="t-nurse">
+          <label>Refer/EMS Score &gt;</label><input type="number" id="t-refer">
+          <label>Doctor Score &gt;</label><input type="number" id="t-doctor">
+        </div>
+
+        <button class="save-btn" style="margin-top:16px;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
+        <button class="ghost-btn" style="margin-top:10px;" onclick="resetWeights()">คืนค่าเริ่มต้น</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="bottomnav">
+    <button class="nav-btn active" data-view="entry" onclick="showView('entry')"><span class="ic">📝</span>บันทึก</button>
+    <button class="nav-btn" data-view="history" onclick="showView('history')"><span class="ic">📚</span>ประวัติ</button>
+    <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="ic">⚙️</span>ตั้งค่า</button>
   </div>
+</div>
 
-  <script>
-    // ค่าเป้าหมายมาตรฐานต่อคนต่อเวร (8 ชั่วโมง)
-    const TARGET_PER_NURSE = 30; // 1 พยาบาล = 30 คะแนน
-    const TARGET_PER_DOCTOR = 50; // 1 แพทย์ = 50 คะแนน
+<!-- ===================== REPORT OVERLAY ===================== -->
+<div class="overlay" id="reportOverlay">
+  <div class="report-sheet">
+    <div class="sheet-handle"></div>
+    <div class="report-card" id="reportCardBody"></div>
+    <div class="sheet-actions">
+      <button class="ghost-btn" onclick="closeReport()">ปิด</button>
+      <button class="save-btn" onclick="newEntryFromReport()">+ บันทึกเวรถัดไป</button>
+    </div>
+  </div>
+</div>
 
-    function calculateProductivity() {
-      // 1. ดึงจำนวนคน
-      const nurseCount = parseFloat(document.getElementById('nurse_count').value) || 1;
-      const docCount = parseFloat(document.getElementById('doc_count').value) || 1;
+<div class="toast" id="toast"></div>
 
-      // 2. ดึงจำนวนเคส
-      const cases = {
-        resus: parseFloat(document.getElementById('c_resus').value) || 0,
-        emer: parseFloat(document.getElementById('c_emer').value) || 0,
-        urg: parseFloat(document.getElementById('c_urg').value) || 0,
-        semi: parseFloat(document.getElementById('c_semi').value) || 0,
-        non: parseFloat(document.getElementById('c_non').value) || 0,
-        refin: parseFloat(document.getElementById('c_refin').value) || 0,
-        refout: parseFloat(document.getElementById('c_refout').value) || 0,
-        ems: parseFloat(document.getElementById('c_ems').value) || 0,
-      };
+<script>
+/* ================= CONFIG & CONSTANTS ================= */
+// ลิ้งก์ Google Apps Script ฝังในโค้ดตามที่ระบุ
+const EMBEDDED_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV5AJ155doRLrIQA73bx2_NoE5J--H6px34_mVA0swmIS6kPZO2FT9pncimme8V_fsLA/exec';
 
-      // 3. ดึงค่าน้ำหนัก พยาบาล
-      const wNurse = {
-        resus: parseFloat(document.getElementById('w_n_resus').value) || 0,
-        emer: parseFloat(document.getElementById('w_n_emer').value) || 0,
-        urg: parseFloat(document.getElementById('w_n_urg').value) || 0,
-        semi: parseFloat(document.getElementById('w_n_semi').value) || 0,
-        non: parseFloat(document.getElementById('w_n_non').value) || 0,
-        refin: parseFloat(document.getElementById('w_n_refin').value) || 0,
-        refout: parseFloat(document.getElementById('w_n_refout').value) || 0,
-        ems: parseFloat(document.getElementById('w_n_ems').value) || 0,
-      };
+const DEFAULT_CONFIG = {
+  weights:{resus:10, emergency:6, urgent:3, semi:2, non:1, referIn:3, referOut:2, ems:4},
+  factors:{nurseFactor:8, doctorFactor:8, referFactor:10},
+  thresholds:{nurse:150, referEms:100, doctor:350}
+};
+const LS_CONFIG='er_config_v2';
+const LS_RECORDS='er_records_v2';
 
-      // 4. ดึงค่าน้ำหนัก แพทย์
-      const wDoc = {
-        resus: parseFloat(document.getElementById('w_d_resus').value) || 0,
-        emer: parseFloat(document.getElementById('w_d_emer').value) || 0,
-        urg: parseFloat(document.getElementById('w_d_urg').value) || 0,
-        semi: parseFloat(document.getElementById('w_d_semi').value) || 0,
-        non: parseFloat(document.getElementById('w_d_non').value) || 0,
-        refin: parseFloat(document.getElementById('w_d_refin').value) || 0,
-        refout: parseFloat(document.getElementById('w_d_refout').value) || 0,
-        ems: parseFloat(document.getElementById('w_d_ems').value) || 0,
-      };
+function loadConfig(){
+  try{
+    const raw=localStorage.getItem(LS_CONFIG);
+    if(!raw) return structuredClone(DEFAULT_CONFIG);
+    const parsed=JSON.parse(raw);
+    return {
+      weights: Object.assign({}, DEFAULT_CONFIG.weights, parsed.weights),
+      factors: Object.assign({}, DEFAULT_CONFIG.factors, parsed.factors),
+      thresholds: Object.assign({}, DEFAULT_CONFIG.thresholds, parsed.thresholds)
+    };
+  }catch(e){ return structuredClone(DEFAULT_CONFIG); }
+}
+function saveConfigToStorage(cfg){ localStorage.setItem(LS_CONFIG, JSON.stringify(cfg)); }
+function loadRecords(){
+  try{ return JSON.parse(localStorage.getItem(LS_RECORDS))||[]; }catch(e){ return []; }
+}
+function saveRecordsToStorage(recs){ localStorage.setItem(LS_RECORDS, JSON.stringify(recs)); }
 
-      // 5. คำนวณ Score รวม
-      let totalNurseScore = 0;
-      let totalDocScore = 0;
+let CFG = loadConfig();
+let RECORDS = loadRecords();
 
-      for (let key in cases) {
-        totalNurseScore += cases[key] * wNurse[key];
-        totalDocScore += cases[key] * wDoc[key];
-      }
+// ตั้งค่าวันที่เริ่มต้นเป็นปัจจุบัน
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 
-      // 6. คำนวณ Target และ % Productivity
-      const totalNurseTarget = nurseCount * TARGET_PER_NURSE;
-      const totalDocTarget = docCount * TARGET_PER_DOCTOR;
+/* ================= SCORE ENGINE ================= */
+function computeScores(c, cfg){
+  const w = cfg.weights, f = cfg.factors, t = cfg.thresholds;
+  const triageRaw = (c.resus*w.resus) + (c.emergency*w.emergency) + (c.urgent*w.urgent) + (c.semi*w.semi) + (c.non*w.non);
+  const referRaw = (c.referIn*w.referIn) + (c.referOut*w.referOut) + (c.ems*w.ems);
+  
+  const nurseDivisor = Math.max(1, c.nurseCount);
+  const doctorDivisor = Math.max(1, c.doctorCount);
 
-      const nurseProd = (totalNurseScore / totalNurseTarget) * 100;
-      const docProd = (totalDocScore / totalDocTarget) * 100;
+  // คำนวณตามสัดส่วนบุคลากร
+  const nurseScore = Math.round((triageRaw / nurseDivisor) * f.nurseFactor);
+  const doctorScore = Math.round((triageRaw / doctorDivisor) * f.doctorFactor);
+  const referEmsScore = Math.round(referRaw * f.referFactor);
 
-      // 7. แสดงผลลัพธ์
-      document.getElementById('nurse_score').innerText = totalNurseScore.toFixed(1);
-      document.getElementById('nurse_target').innerText = totalNurseTarget;
-      document.getElementById('nurse_prod_text').innerText = nurseProd.toFixed(1) + '%';
-      updateStatusBadge('nurse_badge', nurseProd);
+  const overload = nurseScore > t.nurse || referEmsScore > t.referEms || doctorScore > t.doctor;
+  return {nurseScore, referEmsScore, doctorScore, overload, triageRaw, referRaw};
+}
 
-      document.getElementById('doc_score').innerText = totalDocScore.toFixed(1);
-      document.getElementById('doc_target').innerText = totalDocTarget;
-      document.getElementById('doc_prod_text').innerText = docProd.toFixed(1) + '%';
-      updateStatusBadge('doc_badge', docProd);
+/* ================= HELPER DEREF INPUTS ================= */
+function getNumVal(id, defaultVal=0){
+  const el = document.getElementById(id);
+  if(!el) return defaultVal;
+  const val = parseInt(el.value, 10);
+  return isNaN(val) ? defaultVal : val;
+}
+
+/* ================= SAVE RECORD ================= */
+function saveRecord(){
+  const date = document.getElementById('f-date').value;
+  const shift = document.getElementById('f-shift').value;
+  const note = document.getElementById('f-note').value.trim();
+
+  const nurseCount = Math.max(1, getNumVal('f-nurseCount', 1));
+  const doctorCount = Math.max(1, getNumVal('f-doctorCount', 1));
+
+  const counts = {
+    resus: getNumVal('f-resus'),
+    emergency: getNumVal('f-emergency'),
+    urgent: getNumVal('f-urgent'),
+    semi: getNumVal('f-semi'),
+    non: getNumVal('f-non')
+  };
+  const refer = {
+    referIn: getNumVal('f-referIn'),
+    referOut: getNumVal('f-referOut'),
+    ems: getNumVal('f-ems')
+  };
+
+  const scores = computeScores({...counts, ...refer, nurseCount, doctorCount}, CFG);
+
+  const record = {
+    id: 'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    createdAt: new Date().toISOString(),
+    date, shift, nurseCount, doctorCount, counts, refer, note,
+    scores, synced:false
+  };
+
+  RECORDS.unshift(record);
+  saveRecordsToStorage(RECORDS);
+  renderHistory();
+  updatePendingCount();
+  openReport(record);
+  attemptSync(record);
+
+  // รีเซ็ตตัวเลขผู้ป่วย ให้กรอกใหม่เวรถัดไปสะดวก (คงจำนวนพยาบาล/แพทย์ไว้)
+  ['f-resus','f-emergency','f-urgent','f-semi','f-non','f-referIn','f-referOut','f-ems'].forEach(id=>{
+    document.getElementById(id).value = '0';
+  });
+  document.getElementById('f-note').value = '';
+}
+
+/* ================= REPORT RENDER ================= */
+const triageDef = [
+  {key:'resus', label:'Resuscitation', color:'var(--resus)', em:'🔥'},
+  {key:'emergency', label:'Emergency', color:'var(--emergency)', em:'🔴'},
+  {key:'urgent', label:'Urgent', color:'var(--urgent)', em:'🟠'},
+  {key:'semi', label:'Semi-urgent', color:'var(--semi)', em:'🟡'},
+  {key:'non', label:'Non-urgent', color:'var(--non)', em:'🟢'}
+];
+
+function ringSvg(score, threshold){
+  const pct = Math.max(0, Math.min(1, score / (threshold*1.3 || 1)));
+  const r = 39, c = 2*Math.PI*r;
+  const offset = c - pct*c;
+  const color = score > threshold ? 'var(--danger)' : (pct>0.75 ? 'var(--warn)' : 'var(--accent)');
+  return `<div class="ring-holder">
+    <svg viewBox="0 0 96 96">
+      <circle class="ring-track" cx="48" cy="48" r="${r}"></circle>
+      <circle class="ring-fill ${score>threshold?'ring-pulse':''}" cx="48" cy="48" r="${r}"
+        stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"></circle>
+    </svg>
+    <div class="ring-center">
+      <span class="num" style="color:${color}">${score}</span>
+      <span class="lab">Doctor</span>
+    </div>
+  </div>`;
+}
+
+function buildReportHtml(rec){
+  const s = rec.scores;
+  const totalPatients = Object.values(rec.counts).reduce((a,b)=>a+b,0);
+  const triRows = triageDef.map(t=>`
+    <div class="tri-row">
+      <div class="l"><span class="tri-dot" style="background:${t.color};"></span>${t.em} ${t.label}</div>
+      <div class="v">${rec.counts[t.key]}</div>
+    </div>`).join('');
+
+  const dateFmt = new Date(rec.date+'T00:00:00').toLocaleDateString('th-TH-u-ca-buddhist',{day:'2-digit',month:'short',year:'numeric'});
+
+  return `
+    <div class="report-title">📋 Productivity Report</div>
+    <div class="rep-line">🗓️ เวร<b>&nbsp;${rec.shift}</b>&nbsp;|&nbsp;<span>${dateFmt}</span></div>
+    <div class="rep-line">👩‍⚕️ พยาบาล: <b>${rec.nurseCount} คน</b> &nbsp;|&nbsp; 👨‍⚕️ แพทย์: <b>${rec.doctorCount || 1} คน</b></div>
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">🧭 ผู้ป่วยจำแนกตามความเร่งด่วน (รวม ${totalPatients} คน)</div>
+    ${triRows}
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">🚑 Refer / EMS</div>
+    <div class="refer-line">Refer In: <b>${rec.refer.referIn}</b> | Refer Out: <b>${rec.refer.referOut}</b> | EMS: <b>${rec.refer.ems}</b></div>
+
+    <div class="rep-divider"></div>
+    <div class="rep-sub">📊 คะแนน Productivity</div>
+    <div class="score-wrap">
+      ${ringSvg(s.doctorScore, CFG.thresholds.doctor)}
+      <div class="score-list">
+        <div class="score-row"><span class="sl">Nurse Score</span><span class="sv" style="color:${s.nurseScore>CFG.thresholds.nurse?'var(--danger)':'var(--mono-ink)'}">${s.nurseScore}</span></div>
+        <div class="score-row"><span class="sl">Refer/EMS Score</span><span class="sv" style="color:${s.referEmsScore>CFG.thresholds.referEms?'var(--danger)':'var(--mono-ink)'}">${s.referEmsScore}</span></div>
+        <div class="score-row"><span class="sl">Doctor Score</span><span class="sv" style="color:${s.doctorScore>CFG.thresholds.doctor?'var(--danger)':'var(--mono-ink)'}">${s.doctorScore}</span></div>
+      </div>
+    </div>
+
+    ${rec.note ? `<div class="rep-divider"></div><div class="rep-sub">📝 หมายเหตุ</div><div class="refer-line">${escapeHtml(rec.note)}</div>` : ''}
+
+    ${s.overload ? `
+    <div class="overload-banner">
+      <span class="em">🚨</span>
+      <div class="tx"><b>⚠️ ภาระงานสูงเกินปกติ (OVERLOAD)</b><span>พิจารณาจัดกำลังเสริมหรือประสานงานหัวหน้าเวร</span></div>
+    </div>` : ''}
+  `;
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function openReport(rec){
+  document.getElementById('reportCardBody').innerHTML = buildReportHtml(rec);
+  document.getElementById('reportOverlay').classList.add('active');
+}
+function closeReport(){ document.getElementById('reportOverlay').classList.remove('active'); }
+function newEntryFromReport(){ closeReport(); showView('entry'); }
+
+/* ================= HISTORY ================= */
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  if(RECORDS.length===0){
+    list.innerHTML = `<div class="empty-state"><span class="em">🗂️</span>ยังไม่มีข้อมูลที่บันทึก</div>`;
+    return;
+  }
+  list.innerHTML = RECORDS.map(r=>{
+    const dateFmt = new Date(r.date+'T00:00:00').toLocaleDateString('th-TH-u-ca-buddhist',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="hist-item" onclick="openReport(RECORDS.find(x=>x.id==='${r.id}'))">
+      <div class="hd">
+        <div class="d1">${dateFmt} · เวร${r.shift}</div>
+        <div class="d2">พยาบาล ${r.nurseCount} คน · แพทย์ ${r.doctorCount||1} คน · Doctor Score ${r.scores.doctorScore}</div>
+      </div>
+      <span class="sync-ic">${r.synced?'☁️':'📴'}</span>
+      <span class="hist-flag ${r.scores.overload?'over':'ok'}">${r.scores.overload?'OVERLOAD':'ปกติ'}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ================= NAV ================= */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(name==='history') renderHistory();
+  if(name==='settings') fillSettingsForm();
+}
+
+/* ================= SETTINGS ================= */
+function fillSettingsForm(){
+  document.getElementById('w-resus').value = CFG.weights.resus;
+  document.getElementById('w-emergency').value = CFG.weights.emergency;
+  document.getElementById('w-urgent').value = CFG.weights.urgent;
+  document.getElementById('w-semi').value = CFG.weights.semi;
+  document.getElementById('w-non').value = CFG.weights.non;
+  document.getElementById('w-referIn').value = CFG.weights.referIn;
+  document.getElementById('w-referOut').value = CFG.weights.referOut;
+  document.getElementById('w-ems').value = CFG.weights.ems;
+  document.getElementById('f-nurseFactor').value = CFG.factors.nurseFactor;
+  document.getElementById('f-doctorFactor').value = CFG.factors.doctorFactor;
+  document.getElementById('f-referFactor').value = CFG.factors.referFactor;
+  document.getElementById('t-nurse').value = CFG.thresholds.nurse;
+  document.getElementById('t-refer').value = CFG.thresholds.referEms;
+  document.getElementById('t-doctor').value = CFG.thresholds.doctor;
+  updatePendingCount();
+}
+
+function saveSettings(){
+  CFG = {
+    weights:{
+      resus: numOr(document.getElementById('w-resus').value, DEFAULT_CONFIG.weights.resus),
+      emergency: numOr(document.getElementById('w-emergency').value, DEFAULT_CONFIG.weights.emergency),
+      urgent: numOr(document.getElementById('w-urgent').value, DEFAULT_CONFIG.weights.urgent),
+      semi: numOr(document.getElementById('w-semi').value, DEFAULT_CONFIG.weights.semi),
+      non: numOr(document.getElementById('w-non').value, DEFAULT_CONFIG.weights.non),
+      referIn: numOr(document.getElementById('w-referIn').value, DEFAULT_CONFIG.weights.referIn),
+      referOut: numOr(document.getElementById('w-referOut').value, DEFAULT_CONFIG.weights.referOut),
+      ems: numOr(document.getElementById('w-ems').value, DEFAULT_CONFIG.weights.ems)
+    },
+    factors:{
+      nurseFactor: numOr(document.getElementById('f-nurseFactor').value, DEFAULT_CONFIG.factors.nurseFactor),
+      doctorFactor: numOr(document.getElementById('f-doctorFactor').value, DEFAULT_CONFIG.factors.doctorFactor),
+      referFactor: numOr(document.getElementById('f-referFactor').value, DEFAULT_CONFIG.factors.referFactor)
+    },
+    thresholds:{
+      nurse: numOr(document.getElementById('t-nurse').value, DEFAULT_CONFIG.thresholds.nurse),
+      referEms: numOr(document.getElementById('t-refer').value, DEFAULT_CONFIG.thresholds.referEms),
+      doctor: numOr(document.getElementById('t-doctor').value, DEFAULT_CONFIG.thresholds.doctor)
     }
+  };
+  saveConfigToStorage(CFG);
+  showToast('บันทึกการตั้งค่าแล้ว');
+}
+function numOr(v, fallback){ const n=parseFloat(v); return isNaN(n)?fallback:n; }
+function resetWeights(){ CFG = structuredClone(DEFAULT_CONFIG); saveConfigToStorage(CFG); fillSettingsForm(); showToast('คืนค่าเริ่มต้นแล้ว'); }
 
-    function updateStatusBadge(elementId, prodVal) {
-      const badge = document.getElementById(elementId);
-      if (prodVal < 80) {
-        badge.innerText = 'Underutilized (<80%)';
-        badge.style.backgroundColor = 'var(--status-under)';
-      } else if (prodVal <= 100) {
-        badge.innerText = 'Optimal (80-100%)';
-        badge.style.backgroundColor = 'var(--status-optimal)';
-      } else {
-        badge.innerText = 'Overloaded (>100%)';
-        badge.style.backgroundColor = 'var(--status-over)';
-      }
-    }
+function updatePendingCount(){
+  const n = RECORDS.filter(r=>!r.synced).length;
+  document.getElementById('pendingCount').textContent = n;
+}
 
-    // คำนวณครั้งแรกเมื่อโหลดหน้าเว็บ
-    window.onload = calculateProductivity;
-  </script>
+/* ================= SYNC ================= */
+async function postToSheet(payload){
+  try{
+    const res = await fetch(EMBEDDED_APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({ok:true}));
+    return {ok: data.ok !== false};
+  }catch(e){
+    return {ok:false, error:String(e)};
+  }
+}
+
+async function attemptSync(record){
+  const result = await postToSheet({action:'append', row: flattenRecord(record)});
+  if(result.ok){
+    record.synced = true;
+    saveRecordsToStorage(RECORDS);
+    renderHistory();
+    updatePendingCount();
+  }
+}
+
+async function retrySync(){
+  const pending = RECORDS.filter(r=>!r.synced);
+  if(pending.length===0){ showToast('ไม่มีข้อมูลค้างซิงค์'); return; }
+  showToast('กำลังซิงค์ '+pending.length+' รายการ...');
+  for(const rec of pending){ await attemptSync(rec); }
+  showToast('ซิงค์เรียบร้อยแล้ว');
+}
+
+async function testConnection(){
+  showToast('กำลังทดสอบการเชื่อมต่อ...');
+  const result = await postToSheet({action:'ping'});
+  if(result.ok){
+    showToast('✅ เชื่อมต่อ Google Sheet สำเร็จ');
+  }else{
+    showToast('❌ ไม่สามารถเชื่อมต่อได้ กรุณาเช็คการ Deploy');
+  }
+}
+
+function flattenRecord(r){
+  return {
+    id:r.id, createdAt:r.createdAt, date:r.date, shift:r.shift,
+    nurseCount:r.nurseCount, doctorCount:r.doctorCount||1,
+    resuscitation:r.counts.resus, emergency:r.counts.emergency, urgent:r.counts.urgent,
+    semiUrgent:r.counts.semi, nonUrgent:r.counts.non,
+    referIn:r.refer.referIn, referOut:r.refer.referOut, ems:r.refer.ems,
+    nurseScore:r.scores.nurseScore, referEmsScore:r.scores.referEmsScore, doctorScore:r.scores.doctorScore,
+    overload: r.scores.overload ? 'YES' : 'NO', note:r.note||''
+  };
+}
+
+/* ================= TOAST ================= */
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ================= INIT ================= */
+renderHistory();
+updatePendingCount();
+</script>
 </body>
 </html>
