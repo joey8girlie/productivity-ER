@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0B4F6C">
+<meta name="theme-color" content="#5C9CE6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,32 +12,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Theme: Sea Blue / Ocean Turquoise */
-  --bg:#F0F7F9;
+  /* Theme: Pastel Blue */
+  --bg:#F4F9FB;
   --surface:#FFFFFF;
-  --surface-alt:#E1F0F4;
-  --ink:#082F3B;
-  --ink-soft:#436E7C;
-  --line:#CDE1E6;
-  --accent:#00838F;      /* Ocean Cyan */
-  --accent-dark:#005662; /* Deep Teal */
-  --accent-light:#E0F7FA;
-  --mono-ink:#0B3A48;
+  --surface-alt:#E3F2FD;
+  --ink:#1C3354;
+  --ink-soft:#546E8A;
+  --line:#D0E1EE;
+  --accent:#5C9CE6;      /* Pastel Blue */
+  --accent-dark:#3A7CC9;
+  --accent-light:#EBF4FA;
+  --mono-ink:#1C3354;
 
-  --resus:#8B0000;
-  --emergency:#D32F2F;
-  --urgent:#F57C00;
-  --semi:#FBC02D;
-  --non:#388E3C;
+  --resus:#E57373;
+  --emergency:#F06292;
+  --urgent:#FFB74D;
+  --semi:#FDD835;
+  --non:#81C784;
 
-  --danger:#D32F2F;
-  --danger-glow:rgba(211,47,47,.25);
-  --ok:#2E7D32;
-  --warn:#F57C00;
+  --danger:#E53935;
+  --danger-glow:rgba(229,57,53,.25);
+  --ok:#43A047;
+  --warn:#FB8C00;
 
   --radius:18px;
   --radius-sm:12px;
-  --shadow:0 8px 24px rgba(8,47,59,.07);
+  --shadow:0 8px 24px rgba(28,51,84,.06);
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
 }
@@ -49,28 +49,28 @@ body{min-height:100vh;}
 .display{font-family:'Kanit',sans-serif;}
 
 /* ---------- topbar ---------- */
-.topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg, #0A323D 0%, #006064 50%, #00838F 100%);
-  color:#fff;padding:calc(16px + var(--safe-t)) 20px 18px;border-radius:0 0 24px 24px;box-shadow:0 8px 20px rgba(0,67,78,.25);}
+.topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg, #81C2E8 0%, #5C9CE6 50%, #3A7CC9 100%);
+  color:#fff;padding:calc(16px + var(--safe-t)) 20px 18px;border-radius:0 0 24px 24px;box-shadow:0 8px 20px rgba(92,156,230,.25);}
 .topbar h1{font-family:'Kanit',sans-serif;font-size:20px;font-weight:600;margin:0 0 2px;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
-.topbar p{margin:0;font-size:12.5px;opacity:.9;font-weight:400;}
-.topbar .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);
+.topbar p{margin:0;font-size:12.5px;opacity:.95;font-weight:400;}
+.topbar .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);
   border-radius:999px;padding:4px 12px;font-size:12px;margin-top:10px;backdrop-filter:blur(4px);}
-.dot{width:8px;height:8px;border-radius:50%;background:#80CBC4;}
+.dot{width:8px;height:8px;border-radius:50%;background:#EBF4FA;}
 
 /* ---------- main layout ---------- */
 main{padding:16px 16px 24px;}
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;border:1px solid rgba(205,225,230,.5);}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;border:1px solid var(--line);}
 .card h2{font-family:'Kanit',sans-serif;font-size:15px;font-weight:600;margin:0 0 14px;color:var(--ink);
   display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--accent-light);padding-bottom:8px;}
 .card h2 .em{font-size:18px;}
 label.field-label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
 .row{display:flex;gap:12px;}
-.row > *{flex:1;}
+.row > *{flex:1; min-width:0; /* Fix overlap issue */} 
 select,input[type=date],input[type=text],textarea{
   width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;
   font-size:15px;font-family:'Sarabun',sans-serif;background:#fff;color:var(--ink);transition:all .2s;}
 textarea{resize:vertical;min-height:64px;}
-select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,131,143,.15);}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(92,156,230,.15);}
 
 /* direct input rows */
 .input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);}
@@ -82,21 +82,21 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);
 .num-input{
   width:95px;text-align:center;font-size:17px;font-weight:700;
   border:1.5px solid var(--line);border-radius:10px;padding:8px 6px;
-  background:#fff;color:var(--accent-dark);box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
+  background:#fff;color:var(--accent-dark);box-shadow:inset 0 1px 3px rgba(0,0,0,.02);
 }
 .num-input:focus{outline:none;border-color:var(--accent);background:var(--accent-light);}
 
 .save-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg, var(--accent), var(--accent-dark));color:#fff;
-  font-family:'Kanit',sans-serif;font-size:16.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,131,143,.3);
+  font-family:'Kanit',sans-serif;font-size:16.5px;font-weight:600;box-shadow:0 6px 18px rgba(92,156,230,.3);
   cursor:pointer;transition:transform .1s, box-shadow .2s;margin-top:6px;}
-.save-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(0,131,143,.2);}
+.save-btn:active{transform:scale(.98);box-shadow:0 2px 8px rgba(92,156,230,.2);}
 .ghost-btn{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;
   color:var(--ink);font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:600;cursor:pointer;}
 .ghost-btn:active{background:var(--surface-alt);}
 
 /* ---------- bottom nav ---------- */
 .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);
-  max-width:500px;margin:0 auto;padding:8px 8px calc(8px + var(--safe-b));display:flex;box-shadow:0 -6px 20px rgba(8,47,59,.06);}
+  max-width:500px;margin:0 auto;padding:8px 8px calc(8px + var(--safe-b));display:flex;box-shadow:0 -6px 20px rgba(28,51,84,.06);}
 .nav-btn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
   color:var(--ink-soft);font-size:11.5px;font-family:'Sarabun',sans-serif;font-weight:600;padding:6px 0;border-radius:12px;cursor:pointer;}
 .nav-btn .ic{font-size:20px;}
@@ -130,7 +130,7 @@ section.view.active{display:block;}
 .status-card{background:var(--accent-light);border:1px solid #B2EBF2;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 
 /* ---------- report overlay ---------- */
-.overlay{position:fixed;inset:0;background:rgba(8,47,59,.5);backdrop-filter:blur(3px);z-index:50;display:none;
+.overlay{position:fixed;inset:0;background:rgba(28,51,84,.5);backdrop-filter:blur(3px);z-index:50;display:none;
   align-items:flex-end;justify-content:center;}
 .overlay.active{display:flex;}
 .report-sheet{width:100%;max-width:500px;max-height:92vh;overflow-y:auto;background:var(--bg);
@@ -150,19 +150,19 @@ section.view.active{display:block;}
 .tri-row .v{font-family:'JetBrains Mono',monospace;font-weight:700;}
 .refer-line{font-size:14.5px;margin-top:2px;color:var(--ink);}
 
-.score-wrap{display:flex;align-items:center;gap:16px;margin-top:8px;}
-.ring-holder{position:relative;width:98px;height:98px;flex:none;}
+.score-wrap{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:16px;}
+.ring-holder{position:relative;width:105px;height:105px;flex:none;}
 .ring-holder svg{width:100%;height:100%;transform:rotate(-90deg);}
 .ring-track{fill:none;stroke:var(--surface-alt);stroke-width:9;}
 .ring-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.ring-center .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;}
-.ring-center .lab{font-size:10px;color:var(--ink-soft);margin-top:1px;}
+.ring-center .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;}
+.ring-center .lab{font-size:11.5px;color:var(--ink-soft);margin-top:1px;font-family:'Kanit',sans-serif;}
 .ring-pulse{animation:pulse 1.6s ease-in-out infinite;}
 @keyframes pulse{0%,100%{filter:drop-shadow(0 0 0 var(--danger-glow));}50%{filter:drop-shadow(0 0 6px var(--danger-glow));}}
 
 .score-list{flex:1;}
-.score-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;
+.score-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;
   border-bottom:1px dashed var(--line);}
 .score-row:last-child{border-bottom:none;}
 .score-row .sl{font-size:13.5px;color:var(--ink-soft);}
@@ -296,37 +296,38 @@ section.view.active{display:block;}
       </div>
 
       <div class="card">
-        <h2><span class="em">⚖️</span> ค่าถ่วงน้ำหนัก Productivity</h2>
+        <h2><span class="em">⚖️</span> ค่าถ่วงน้ำหนักและการรองรับ</h2>
         <div class="hint" style="margin-bottom:12px;">ปรับตัวเลขให้ตรงตามเกณฑ์ของหน่วยงานได้ตามต้องการ</div>
 
-        <div class="sub-h">ค่าน้ำหนักผู้ป่วย (ใช้คำนวณ Nurse &amp; Doctor Score)</div>
+        <div class="sub-h">เป้าหมายรองรับต่อคน (Target Capacity)</div>
         <div class="weight-grid">
-          <label>Resuscitation</label><input type="number" step="0.1" id="w-resus">
-          <label>Emergency</label><input type="number" step="0.1" id="w-emergency">
-          <label>Urgent</label><input type="number" step="0.1" id="w-urgent">
-          <label>Semi-urgent</label><input type="number" step="0.1" id="w-semi">
-          <label>Non-urgent</label><input type="number" step="0.1" id="w-non">
+          <label>พยาบาล (คะแนน/คน)</label><input type="number" id="c-nurse">
+          <label>แพทย์ (คะแนน/คน)</label><input type="number" id="c-doctor">
         </div>
 
-        <div class="sub-h">ค่าน้ำหนัก Refer / EMS</div>
+        <div class="sub-h">ค่าน้ำหนักผู้ป่วย: พยาบาล (Nurse Weights)</div>
         <div class="weight-grid">
-          <label>Refer In</label><input type="number" step="0.1" id="w-referIn">
-          <label>Refer Out</label><input type="number" step="0.1" id="w-referOut">
-          <label>EMS</label><input type="number" step="0.1" id="w-ems">
+          <label>Resuscitation</label><input type="number" step="0.1" id="nw-resus">
+          <label>Emergency</label><input type="number" step="0.1" id="nw-emergency">
+          <label>Urgent</label><input type="number" step="0.1" id="nw-urgent">
+          <label>Semi-urgent</label><input type="number" step="0.1" id="nw-semi">
+          <label>Non-urgent</label><input type="number" step="0.1" id="nw-non">
         </div>
 
-        <div class="sub-h">ตัวคูณสูตรคำนวณคะแนน (Factors)</div>
+        <div class="sub-h">ค่าน้ำหนักผู้ป่วย: แพทย์ (Doctor Weights)</div>
         <div class="weight-grid">
-          <label>Nurse Factor (×)</label><input type="number" step="0.1" id="f-nurseFactor">
-          <label>Doctor Factor (×)</label><input type="number" step="0.1" id="f-doctorFactor">
-          <label>Refer/EMS Factor (×)</label><input type="number" step="0.1" id="f-referFactor">
+          <label>Resuscitation</label><input type="number" step="0.1" id="dw-resus">
+          <label>Emergency</label><input type="number" step="0.1" id="dw-emergency">
+          <label>Urgent</label><input type="number" step="0.1" id="dw-urgent">
+          <label>Semi-urgent</label><input type="number" step="0.1" id="dw-semi">
+          <label>Non-urgent</label><input type="number" step="0.1" id="dw-non">
         </div>
 
-        <div class="sub-h">เกณฑ์แจ้งเตือน OVERLOAD (เมื่อคะแนนเกิน)</div>
+        <div class="sub-h">ค่าน้ำหนัก Refer / EMS (รวมในพยาบาล)</div>
         <div class="weight-grid">
-          <label>Nurse Score &gt;</label><input type="number" id="t-nurse">
-          <label>Refer/EMS Score &gt;</label><input type="number" id="t-refer">
-          <label>Doctor Score &gt;</label><input type="number" id="t-doctor">
+          <label>Refer In</label><input type="number" step="0.1" id="rw-referIn">
+          <label>Refer Out</label><input type="number" step="0.1" id="rw-referOut">
+          <label>EMS</label><input type="number" step="0.1" id="rw-ems">
         </div>
 
         <button class="save-btn" style="margin-top:16px;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
@@ -358,16 +359,16 @@ section.view.active{display:block;}
 
 <script>
 /* ================= CONFIG & CONSTANTS ================= */
-// ลิ้งก์ Google Apps Script ฝังในโค้ดตามที่ระบุ
 const EMBEDDED_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV5AJ155doRLrIQA73bx2_NoE5J--H6px34_mVA0swmIS6kPZO2FT9pncimme8V_fsLA/exec';
 
 const DEFAULT_CONFIG = {
-  weights:{resus:10, emergency:6, urgent:3, semi:2, non:1, referIn:3, referOut:2, ems:4},
-  factors:{nurseFactor:8, doctorFactor:8, referFactor:10},
-  thresholds:{nurse:150, referEms:100, doctor:350}
+  nurseWeights: {resus:10, emergency:8, urgent:5, semi:3, non:1},
+  doctorWeights: {resus:15, emergency:10, urgent:6, semi:4, non:2},
+  referWeights: {referIn:3, referOut:2, ems:4},
+  capacity: {nurse:30, doctor:50}
 };
-const LS_CONFIG='er_config_v2';
-const LS_RECORDS='er_records_v2';
+const LS_CONFIG='er_config_v3';
+const LS_RECORDS='er_records_v3';
 
 function loadConfig(){
   try{
@@ -375,9 +376,10 @@ function loadConfig(){
     if(!raw) return structuredClone(DEFAULT_CONFIG);
     const parsed=JSON.parse(raw);
     return {
-      weights: Object.assign({}, DEFAULT_CONFIG.weights, parsed.weights),
-      factors: Object.assign({}, DEFAULT_CONFIG.factors, parsed.factors),
-      thresholds: Object.assign({}, DEFAULT_CONFIG.thresholds, parsed.thresholds)
+      nurseWeights: Object.assign({}, DEFAULT_CONFIG.nurseWeights, parsed.nurseWeights),
+      doctorWeights: Object.assign({}, DEFAULT_CONFIG.doctorWeights, parsed.doctorWeights),
+      referWeights: Object.assign({}, DEFAULT_CONFIG.referWeights, parsed.referWeights),
+      capacity: Object.assign({}, DEFAULT_CONFIG.capacity, parsed.capacity)
     };
   }catch(e){ return structuredClone(DEFAULT_CONFIG); }
 }
@@ -390,25 +392,33 @@ function saveRecordsToStorage(recs){ localStorage.setItem(LS_RECORDS, JSON.strin
 let CFG = loadConfig();
 let RECORDS = loadRecords();
 
-// ตั้งค่าวันที่เริ่มต้นเป็นปัจจุบัน
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 
 /* ================= SCORE ENGINE ================= */
 function computeScores(c, cfg){
-  const w = cfg.weights, f = cfg.factors, t = cfg.thresholds;
-  const triageRaw = (c.resus*w.resus) + (c.emergency*w.emergency) + (c.urgent*w.urgent) + (c.semi*w.semi) + (c.non*w.non);
-  const referRaw = (c.referIn*w.referIn) + (c.referOut*w.referOut) + (c.ems*w.ems);
+  const nw = cfg.nurseWeights;
+  const dw = cfg.doctorWeights;
+  const rw = cfg.referWeights;
+  const cap = cfg.capacity;
+
+  const nurseTriage = (c.resus*nw.resus) + (c.emergency*nw.emergency) + (c.urgent*nw.urgent) + (c.semi*nw.semi) + (c.non*nw.non);
+  const doctorTriage = (c.resus*dw.resus) + (c.emergency*dw.emergency) + (c.urgent*dw.urgent) + (c.semi*dw.semi) + (c.non*dw.non);
+  const referScore = (c.referIn*rw.referIn) + (c.referOut*rw.referOut) + (c.ems*rw.ems);
   
+  const nurseTotal = nurseTriage + referScore; 
+  const doctorTotal = doctorTriage;
+
   const nurseDivisor = Math.max(1, c.nurseCount);
   const doctorDivisor = Math.max(1, c.doctorCount);
 
-  // คำนวณตามสัดส่วนบุคลากร
-  const nurseScore = Math.round((triageRaw / nurseDivisor) * f.nurseFactor);
-  const doctorScore = Math.round((triageRaw / doctorDivisor) * f.doctorFactor);
-  const referEmsScore = Math.round(referRaw * f.referFactor);
+  const nurseCapacityTotal = nurseDivisor * cap.nurse;
+  const doctorCapacityTotal = doctorDivisor * cap.doctor;
 
-  const overload = nurseScore > t.nurse || referEmsScore > t.referEms || doctorScore > t.doctor;
-  return {nurseScore, referEmsScore, doctorScore, overload, triageRaw, referRaw};
+  const nurseProdPct = Math.round((nurseTotal / nurseCapacityTotal) * 100);
+  const doctorProdPct = Math.round((doctorTotal / doctorCapacityTotal) * 100);
+
+  const overload = nurseProdPct > 100 || doctorProdPct > 100;
+  return {nurseScore: nurseTotal, doctorScore: doctorTotal, nurseProdPct, doctorProdPct, referScore, overload};
 }
 
 /* ================= HELPER DEREF INPUTS ================= */
@@ -457,7 +467,6 @@ function saveRecord(){
   openReport(record);
   attemptSync(record);
 
-  // รีเซ็ตตัวเลขผู้ป่วย ให้กรอกใหม่เวรถัดไปสะดวก (คงจำนวนพยาบาล/แพทย์ไว้)
   ['f-resus','f-emergency','f-urgent','f-semi','f-non','f-referIn','f-referOut','f-ems'].forEach(id=>{
     document.getElementById(id).value = '0';
   });
@@ -473,20 +482,20 @@ const triageDef = [
   {key:'non', label:'Non-urgent', color:'var(--non)', em:'🟢'}
 ];
 
-function ringSvg(score, threshold){
-  const pct = Math.max(0, Math.min(1, score / (threshold*1.3 || 1)));
+function ringSvg(pct, label){
+  const p = Math.max(0, Math.min(100, pct));
   const r = 39, c = 2*Math.PI*r;
-  const offset = c - pct*c;
-  const color = score > threshold ? 'var(--danger)' : (pct>0.75 ? 'var(--warn)' : 'var(--accent)');
+  const offset = c - (p/100)*c;
+  const color = pct > 100 ? 'var(--danger)' : (pct>80 ? 'var(--warn)' : 'var(--accent)');
   return `<div class="ring-holder">
     <svg viewBox="0 0 96 96">
       <circle class="ring-track" cx="48" cy="48" r="${r}"></circle>
-      <circle class="ring-fill ${score>threshold?'ring-pulse':''}" cx="48" cy="48" r="${r}"
+      <circle class="ring-fill ${pct>100?'ring-pulse':''}" cx="48" cy="48" r="${r}"
         stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"></circle>
     </svg>
     <div class="ring-center">
-      <span class="num" style="color:${color}">${score}</span>
-      <span class="lab">Doctor</span>
+      <span class="num" style="color:${color}">${pct}%</span>
+      <span class="lab">${label}</span>
     </div>
   </div>`;
 }
@@ -516,14 +525,15 @@ function buildReportHtml(rec){
     <div class="refer-line">Refer In: <b>${rec.refer.referIn}</b> | Refer Out: <b>${rec.refer.referOut}</b> | EMS: <b>${rec.refer.ems}</b></div>
 
     <div class="rep-divider"></div>
-    <div class="rep-sub">📊 คะแนน Productivity</div>
+    <div class="rep-sub">📊 % Productivity ประจำเวร</div>
     <div class="score-wrap">
-      ${ringSvg(s.doctorScore, CFG.thresholds.doctor)}
-      <div class="score-list">
-        <div class="score-row"><span class="sl">Nurse Score</span><span class="sv" style="color:${s.nurseScore>CFG.thresholds.nurse?'var(--danger)':'var(--mono-ink)'}">${s.nurseScore}</span></div>
-        <div class="score-row"><span class="sl">Refer/EMS Score</span><span class="sv" style="color:${s.referEmsScore>CFG.thresholds.referEms?'var(--danger)':'var(--mono-ink)'}">${s.referEmsScore}</span></div>
-        <div class="score-row"><span class="sl">Doctor Score</span><span class="sv" style="color:${s.doctorScore>CFG.thresholds.doctor?'var(--danger)':'var(--mono-ink)'}">${s.doctorScore}</span></div>
-      </div>
+      ${ringSvg(s.nurseProdPct, 'พยาบาล')}
+      ${ringSvg(s.doctorProdPct, 'แพทย์')}
+    </div>
+    
+    <div class="score-list" style="margin-top:20px;">
+      <div class="score-row"><span class="sl">Nurse Total Score</span><span class="sv">${s.nurseScore}</span></div>
+      <div class="score-row"><span class="sl">Doctor Total Score</span><span class="sv">${s.doctorScore}</span></div>
     </div>
 
     ${rec.note ? `<div class="rep-divider"></div><div class="rep-sub">📝 หมายเหตุ</div><div class="refer-line">${escapeHtml(rec.note)}</div>` : ''}
@@ -556,7 +566,7 @@ function renderHistory(){
     return `<div class="hist-item" onclick="openReport(RECORDS.find(x=>x.id==='${r.id}'))">
       <div class="hd">
         <div class="d1">${dateFmt} · เวร${r.shift}</div>
-        <div class="d2">พยาบาล ${r.nurseCount} คน · แพทย์ ${r.doctorCount||1} คน · Doctor Score ${r.scores.doctorScore}</div>
+        <div class="d2">Prod: พยาบาล ${r.scores.nurseProdPct}% · แพทย์ ${r.scores.doctorProdPct}%</div>
       </div>
       <span class="sync-ic">${r.synced?'☁️':'📴'}</span>
       <span class="hist-flag ${r.scores.overload?'over':'ok'}">${r.scores.overload?'OVERLOAD':'ปกติ'}</span>
@@ -575,44 +585,52 @@ function showView(name){
 
 /* ================= SETTINGS ================= */
 function fillSettingsForm(){
-  document.getElementById('w-resus').value = CFG.weights.resus;
-  document.getElementById('w-emergency').value = CFG.weights.emergency;
-  document.getElementById('w-urgent').value = CFG.weights.urgent;
-  document.getElementById('w-semi').value = CFG.weights.semi;
-  document.getElementById('w-non').value = CFG.weights.non;
-  document.getElementById('w-referIn').value = CFG.weights.referIn;
-  document.getElementById('w-referOut').value = CFG.weights.referOut;
-  document.getElementById('w-ems').value = CFG.weights.ems;
-  document.getElementById('f-nurseFactor').value = CFG.factors.nurseFactor;
-  document.getElementById('f-doctorFactor').value = CFG.factors.doctorFactor;
-  document.getElementById('f-referFactor').value = CFG.factors.referFactor;
-  document.getElementById('t-nurse').value = CFG.thresholds.nurse;
-  document.getElementById('t-refer').value = CFG.thresholds.referEms;
-  document.getElementById('t-doctor').value = CFG.thresholds.doctor;
+  document.getElementById('c-nurse').value = CFG.capacity.nurse;
+  document.getElementById('c-doctor').value = CFG.capacity.doctor;
+
+  document.getElementById('nw-resus').value = CFG.nurseWeights.resus;
+  document.getElementById('nw-emergency').value = CFG.nurseWeights.emergency;
+  document.getElementById('nw-urgent').value = CFG.nurseWeights.urgent;
+  document.getElementById('nw-semi').value = CFG.nurseWeights.semi;
+  document.getElementById('nw-non').value = CFG.nurseWeights.non;
+
+  document.getElementById('dw-resus').value = CFG.doctorWeights.resus;
+  document.getElementById('dw-emergency').value = CFG.doctorWeights.emergency;
+  document.getElementById('dw-urgent').value = CFG.doctorWeights.urgent;
+  document.getElementById('dw-semi').value = CFG.doctorWeights.semi;
+  document.getElementById('dw-non').value = CFG.doctorWeights.non;
+
+  document.getElementById('rw-referIn').value = CFG.referWeights.referIn;
+  document.getElementById('rw-referOut').value = CFG.referWeights.referOut;
+  document.getElementById('rw-ems').value = CFG.referWeights.ems;
+
   updatePendingCount();
 }
 
 function saveSettings(){
   CFG = {
-    weights:{
-      resus: numOr(document.getElementById('w-resus').value, DEFAULT_CONFIG.weights.resus),
-      emergency: numOr(document.getElementById('w-emergency').value, DEFAULT_CONFIG.weights.emergency),
-      urgent: numOr(document.getElementById('w-urgent').value, DEFAULT_CONFIG.weights.urgent),
-      semi: numOr(document.getElementById('w-semi').value, DEFAULT_CONFIG.weights.semi),
-      non: numOr(document.getElementById('w-non').value, DEFAULT_CONFIG.weights.non),
-      referIn: numOr(document.getElementById('w-referIn').value, DEFAULT_CONFIG.weights.referIn),
-      referOut: numOr(document.getElementById('w-referOut').value, DEFAULT_CONFIG.weights.referOut),
-      ems: numOr(document.getElementById('w-ems').value, DEFAULT_CONFIG.weights.ems)
+    capacity:{
+      nurse: numOr(document.getElementById('c-nurse').value, DEFAULT_CONFIG.capacity.nurse),
+      doctor: numOr(document.getElementById('c-doctor').value, DEFAULT_CONFIG.capacity.doctor)
     },
-    factors:{
-      nurseFactor: numOr(document.getElementById('f-nurseFactor').value, DEFAULT_CONFIG.factors.nurseFactor),
-      doctorFactor: numOr(document.getElementById('f-doctorFactor').value, DEFAULT_CONFIG.factors.doctorFactor),
-      referFactor: numOr(document.getElementById('f-referFactor').value, DEFAULT_CONFIG.factors.referFactor)
+    nurseWeights:{
+      resus: numOr(document.getElementById('nw-resus').value, DEFAULT_CONFIG.nurseWeights.resus),
+      emergency: numOr(document.getElementById('nw-emergency').value, DEFAULT_CONFIG.nurseWeights.emergency),
+      urgent: numOr(document.getElementById('nw-urgent').value, DEFAULT_CONFIG.nurseWeights.urgent),
+      semi: numOr(document.getElementById('nw-semi').value, DEFAULT_CONFIG.nurseWeights.semi),
+      non: numOr(document.getElementById('nw-non').value, DEFAULT_CONFIG.nurseWeights.non)
     },
-    thresholds:{
-      nurse: numOr(document.getElementById('t-nurse').value, DEFAULT_CONFIG.thresholds.nurse),
-      referEms: numOr(document.getElementById('t-refer').value, DEFAULT_CONFIG.thresholds.referEms),
-      doctor: numOr(document.getElementById('t-doctor').value, DEFAULT_CONFIG.thresholds.doctor)
+    doctorWeights:{
+      resus: numOr(document.getElementById('dw-resus').value, DEFAULT_CONFIG.doctorWeights.resus),
+      emergency: numOr(document.getElementById('dw-emergency').value, DEFAULT_CONFIG.doctorWeights.emergency),
+      urgent: numOr(document.getElementById('dw-urgent').value, DEFAULT_CONFIG.doctorWeights.urgent),
+      semi: numOr(document.getElementById('dw-semi').value, DEFAULT_CONFIG.doctorWeights.semi),
+      non: numOr(document.getElementById('dw-non').value, DEFAULT_CONFIG.doctorWeights.non)
+    },
+    referWeights:{
+      referIn: numOr(document.getElementById('rw-referIn').value, DEFAULT_CONFIG.referWeights.referIn),
+      referOut: numOr(document.getElementById('rw-referOut').value, DEFAULT_CONFIG.referWeights.referOut),
+      ems: numOr(document.getElementById('rw-ems').value, DEFAULT_CONFIG.referWeights.ems)
     }
   };
   saveConfigToStorage(CFG);
@@ -676,7 +694,7 @@ function flattenRecord(r){
     resuscitation:r.counts.resus, emergency:r.counts.emergency, urgent:r.counts.urgent,
     semiUrgent:r.counts.semi, nonUrgent:r.counts.non,
     referIn:r.refer.referIn, referOut:r.refer.referOut, ems:r.refer.ems,
-    nurseScore:r.scores.nurseScore, referEmsScore:r.scores.referEmsScore, doctorScore:r.scores.doctorScore,
+    nurseProdPct:r.scores.nurseProdPct, doctorProdPct:r.scores.doctorProdPct,
     overload: r.scores.overload ? 'YES' : 'NO', note:r.note||''
   };
 }
