@@ -450,8 +450,12 @@ function computeScores(c, cfg){
 function getNumVal(id, defaultVal=0){
   const el = document.getElementById(id);
   if(!el) return defaultVal;
+
   const val = parseInt(el.value, 10);
-  return isNaN(val) ? defaultVal : val;
+
+  if(isNaN(val)) return defaultVal;
+
+  return Math.max(0, val);
 }
 
 /* ================= SAVE RECORD ================= */
@@ -482,7 +486,10 @@ function saveRecord(){
     id: 'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     createdAt: new Date().toISOString(),
     date, shift, nurseCount, doctorCount, counts, refer, note,
-    scores, synced:false
+    scores,
+    synced:false,
+    syncError:'',
+    syncedAt:''
   };
 
   RECORDS.unshift(record);
@@ -490,7 +497,13 @@ function saveRecord(){
   renderHistory();
   updatePendingCount();
   openReport(record);
-  attemptSync(record);
+  attemptSync(record).then(ok => {
+    if(ok){
+      showToast('✅ บันทึกและซิงค์ Google Sheet สำเร็จ');
+    }else{
+      showToast('⚠️ บันทึกแล้ว แต่ยังซิงค์ Google Sheet ไม่สำเร็จ — เก็บไว้รอซิงค์');
+    }
+  });
 
   ['f-resus','f-emergency','f-urgent','f-semi','f-non','f-referIn','f-referOut','f-ems'].forEach(id=>{
     document.getElementById(id).value = '0';
@@ -595,7 +608,7 @@ function renderHistory(){
         <div class="d1">${dateFmt} · เวร${r.shift}</div>
         <div class="d2">Prod: พยาบาล ${r.scores.nurseProdPct}% · แพทย์ ${r.scores.doctorProdPct}% (EMS: ${r.scores.emsScore||0} pt)</div>
       </div>
-      <span class="sync-ic">${r.synced?'☁️':'📴'}</span>
+      <span class="sync-ic" title="${r.synced?'ซิงค์แล้ว':(r.syncError||'รอซิงค์')}">${r.synced?'☁️':(r.syncError?'⚠️':'📴')}</span>
       <span class="hist-flag ${r.scores.overload?'over':'ok'}">${r.scores.overload?'OVERLOAD':'ปกติ'}</span>
     </div>`;
   }).join('');
@@ -679,20 +692,71 @@ async function postToSheet(payload){
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body: JSON.stringify(payload)
     });
-    const data = await res.json().catch(()=>({ok:true}));
-    return {ok: data.ok !== false};
+
+    const text = await res.text();
+
+    let data;
+    try{
+      data = JSON.parse(text);
+    }catch(e){
+      return {
+        ok:false,
+        error:'Invalid JSON response from Apps Script',
+        raw:text
+      };
+    }
+
+    if(data.ok !== true){
+      return {
+        ok:false,
+        error:data.error || 'Unknown Apps Script error',
+        data
+      };
+    }
+
+    return {
+      ok:true,
+      data
+    };
+
   }catch(e){
-    return {ok:false, error:String(e)};
+    return {
+      ok:false,
+      error:String(e)
+    };
   }
 }
 
 async function attemptSync(record){
-  const result = await postToSheet({action:'append', row: flattenRecord(record)});
+  const payload = {
+    action:'append',
+    row: flattenRecord(record)
+  };
+
+  const result = await postToSheet(payload);
+
   if(result.ok){
     record.synced = true;
+    record.syncError = '';
+    record.syncedAt = new Date().toISOString();
+
     saveRecordsToStorage(RECORDS);
     renderHistory();
     updatePendingCount();
+
+    console.log('Google Sheet sync success:', result.data);
+    return true;
+
+  }else{
+    record.synced = false;
+    record.syncError = result.error || 'Unknown sync error';
+
+    saveRecordsToStorage(RECORDS);
+    renderHistory();
+    updatePendingCount();
+
+    console.error('Google Sheet Sync Error:', result.error, result.data || '');
+    return false;
   }
 }
 
