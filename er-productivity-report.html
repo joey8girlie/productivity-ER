@@ -131,7 +131,16 @@ section.view.active{display:block;}
 .weight-grid input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px;font-size:14px;
   font-family:'JetBrains Mono',monospace;text-align:right;}
 .sub-h{font-size:12.5px;font-weight:700;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.5px;
-  margin:16px 0 10px;padding-bottom:4px;border-bottom:1px stroke var(--line);}
+  margin:16px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--line);}
+
+/* ---------- formula page ---------- */
+.formula-block{margin-bottom:14px;}
+.formula-block:last-child{margin-bottom:0;}
+.formula-title{font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;font-family:'Kanit',sans-serif;}
+.formula-eq{font-size:13.5px;background:var(--surface-alt);border-radius:10px;padding:10px 12px;
+  line-height:1.7;overflow-x:auto;white-space:nowrap;color:var(--ink);}
+.formula-eq b{color:var(--accent-dark);font-weight:700;}
+.formula-block.highlight .formula-eq{background:var(--accent-light);border:1.5px solid var(--accent);font-size:14.5px;}
 .hint{font-size:12.5px;color:var(--ink-soft);line-height:1.55;margin-top:4px;}
 .status-card{background:var(--accent-light);border:1px solid #B2EBF2;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 
@@ -288,6 +297,9 @@ section.view.active{display:block;}
       <div id="historyList"></div>
     </section>
 
+    <!-- ===================== FORMULA VIEW ===================== -->
+    <section class="view" id="view-formula"></section>
+
     <!-- ===================== SETTINGS VIEW ===================== -->
     <section class="view" id="view-settings">
       <div class="card">
@@ -347,6 +359,7 @@ section.view.active{display:block;}
   <div class="bottomnav">
     <button class="nav-btn active" data-view="entry" onclick="showView('entry')"><span class="ic">📝</span>บันทึก</button>
     <button class="nav-btn" data-view="history" onclick="showView('history')"><span class="ic">📚</span>ประวัติ</button>
+    <button class="nav-btn" data-view="formula" onclick="showView('formula')"><span class="ic">📐</span>สูตร</button>
     <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="ic">⚙️</span>ตั้งค่า</button>
   </div>
 </div>
@@ -621,6 +634,95 @@ function showView(name){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
   if(name==='history') renderHistory();
   if(name==='settings') fillSettingsForm();
+  if(name==='formula') renderFormula();
+}
+
+/* ================= FORMULA PAGE ================= */
+function buildFormulaHtml(){
+  const nw = CFG.nurseWeights, dw = CFG.doctorWeights, rw = CFG.referWeights, cap = CFG.capacity;
+
+  let exampleHtml;
+  if(RECORDS.length > 0){
+    const r = RECORDS[0];
+    const c = r.counts, rf = r.refer, s = r.scores;
+    const dateFmt = new Date(r.date+'T00:00:00').toLocaleDateString('th-TH-u-ca-buddhist',{day:'2-digit',month:'short',year:'numeric'});
+    const nurseCap = r.nurseCount * cap.nurse;
+    const doctorCap = r.doctorCount * cap.doctor;
+    exampleHtml = `
+      <div class="hint" style="margin-bottom:12px;">📌 คำนวณจากการบันทึกล่าสุด: ${dateFmt} · เวร${r.shift}</div>
+
+      <div class="formula-block">
+        <div class="formula-title">Nurse Triage Score</div>
+        <div class="formula-eq mono">(${c.resus}×${nw.resus})+(${c.emergency}×${nw.emergency})+(${c.urgent}×${nw.urgent})+(${c.semi}×${nw.semi})+(${c.non}×${nw.non}) = <b>${s.nurseTriageScore}</b></div>
+      </div>
+      <div class="formula-block">
+        <div class="formula-title">Refer / EMS Total Score</div>
+        <div class="formula-eq mono">(${rf.referIn}×${rw.referIn})+(${rf.referOut}×${rw.referOut})+(${rf.ems}×${rw.ems}) = <b>${s.referTotalScore}</b></div>
+      </div>
+      <div class="formula-block">
+        <div class="formula-title">Nurse Total Score</div>
+        <div class="formula-eq mono">${s.nurseTriageScore} + ${s.referTotalScore} = <b>${s.nurseScore}</b></div>
+      </div>
+      <div class="formula-block">
+        <div class="formula-title">Nurse Capacity</div>
+        <div class="formula-eq mono">${r.nurseCount} คน × ${cap.nurse} = <b>${nurseCap}</b></div>
+      </div>
+      <div class="formula-block highlight">
+        <div class="formula-title">Nurse Productivity %</div>
+        <div class="formula-eq mono">${s.nurseScore} ÷ ${nurseCap} × 100 = <b>${s.nurseProdPct}%</b></div>
+      </div>
+
+      <div class="rep-divider"></div>
+
+      <div class="formula-block">
+        <div class="formula-title">Doctor Triage Score</div>
+        <div class="formula-eq mono">(${c.resus}×${dw.resus})+(${c.emergency}×${dw.emergency})+(${c.urgent}×${dw.urgent})+(${c.semi}×${dw.semi})+(${c.non}×${dw.non}) = <b>${s.doctorTriageScore}</b></div>
+      </div>
+      <div class="formula-block">
+        <div class="formula-title">Doctor Capacity</div>
+        <div class="formula-eq mono">${r.doctorCount} คน × ${cap.doctor} = <b>${doctorCap}</b></div>
+      </div>
+      <div class="formula-block highlight">
+        <div class="formula-title">Doctor Productivity %</div>
+        <div class="formula-eq mono">${s.doctorScore} ÷ ${doctorCap} × 100 = <b>${s.doctorProdPct}%</b></div>
+      </div>
+    `;
+  } else {
+    exampleHtml = `<div class="empty-state"><span class="em">🧮</span>ยังไม่มีข้อมูลบันทึก<br>บันทึกเวรแรกในแท็บ "บันทึก" เพื่อดูตัวอย่างการคำนวณจริงที่นี่</div>`;
+  }
+
+  return `
+    <div class="card">
+      <h2><span class="em">📐</span> สูตรคำนวณ (ใช้ค่าถ่วงน้ำหนักปัจจุบัน)</h2>
+
+      <div class="sub-h">Nurse Triage Score</div>
+      <div class="formula-eq mono">(Resus×${nw.resus}) + (Emergency×${nw.emergency}) + (Urgent×${nw.urgent}) + (Semi×${nw.semi}) + (Non-urgent×${nw.non})</div>
+
+      <div class="sub-h">Doctor Triage Score</div>
+      <div class="formula-eq mono">(Resus×${dw.resus}) + (Emergency×${dw.emergency}) + (Urgent×${dw.urgent}) + (Semi×${dw.semi}) + (Non-urgent×${dw.non})</div>
+
+      <div class="sub-h">Refer / EMS Total Score</div>
+      <div class="formula-eq mono">(Refer In×${rw.referIn}) + (Refer Out×${rw.referOut}) + (EMS×${rw.ems})</div>
+
+      <div class="sub-h">Nurse Total Score</div>
+      <div class="formula-eq mono">Nurse Triage Score + Refer/EMS Total Score</div>
+
+      <div class="sub-h">Doctor Total Score</div>
+      <div class="formula-eq mono">Doctor Triage Score</div>
+
+      <div class="sub-h">Productivity %</div>
+      <div class="formula-eq mono">Total Score ÷ (จำนวนคน × เป้าหมาย/คน) × 100</div>
+      <div class="hint">เป้าหมาย/คนปัจจุบัน — พยาบาล: ${cap.nurse} คะแนน/คน · แพทย์: ${cap.doctor} คะแนน/คน<br>ปรับค่าน้ำหนักและเป้าหมายได้ที่แท็บ "ตั้งค่า" — หน้านี้จะอัปเดตตามค่าล่าสุดเสมอ</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="em">🧮</span> ตัวอย่างการคำนวณจริง</h2>
+      ${exampleHtml}
+    </div>
+  `;
+}
+function renderFormula(){
+  document.getElementById('view-formula').innerHTML = buildFormulaHtml();
 }
 
 /* ================= SETTINGS ================= */
